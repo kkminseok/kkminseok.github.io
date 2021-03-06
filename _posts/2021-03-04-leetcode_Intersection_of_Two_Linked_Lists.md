@@ -24,13 +24,18 @@ comments: true
 ![](/assets/img/sample/leetcode/160/input.JPG)  
 
 
+
+
 **Notes:**
 
-- If the two linked lists have no intersection at all, return null.
-- The linked lists must retain their original structure after the function returns.
-- You may assume there are no cycles anywhere in the entire linked structure.
-- Each value on each linked list is in the range [1, 10^9].
-- Your code should preferably run in O(n) time and use only O(1) memory.
+- The number of nodes of listA is in the m.
+- The number of nodes of listB is in the n.
+- 1 <= m, n <= 3 * 104
+- 1 <= Node.val <= 105
+- 1 <= skipA <= m
+- 1 <= skipB <= n
+- intersectVal is 0 if listA and listB do not intersect.
+- intersectVal == listA[skipA + 1] == listB[skipB + 1] if listA and listB intersect.
 
 -----  
 
