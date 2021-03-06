@@ -97,6 +97,6 @@ public:
 
 
 
-![](/assets/img/sample/leetcode/8/result.JPG)  
+![](/assets/img/sample/leetcode/10/result.JPG)  
 
 
