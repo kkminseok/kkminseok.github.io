@@ -3,7 +3,7 @@ title: leetcode(리트코드)3월02일 challenge645-Set Mismatch
 author: 강민석
 date: 2021-03-03 00:00:00 +0800
 categories: [leetcode,Eazy]
-tags: [leetcode]
+tags: [leetcode,AlgorithmStudy]
 math: true
 mermaid: true
 image: 
