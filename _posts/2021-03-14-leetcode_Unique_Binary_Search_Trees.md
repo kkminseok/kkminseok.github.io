@@ -1,99 +1,79 @@
 ---
-title: leetcode(리트코드)3월14일 challenge1721-Unique Binary Search Trees
+title: leetcode(리트코드)96-Unique Binary Search Trees
 author: 강민석
-date: 2021-03-14 14:00:00 +0800
+date: 2021-03-14 00:02:00 +0800
 categories: [leetcode,Medium]
-tags: [leetcode,AlgorithmStudy]
+tags: [leetcode,Top100Like]
 math: true
 mermaid: true
 image: 
 comments: true
 ---
 
-**leetcode March 14일 - Unique Binary Search Trees 문제입니다.**
+**leetcode 96 - Unique Binary Search Trees 문제입니다.**
 
 ## 1. 문제
-<https://leetcode.com/problems/swapping-nodes-in-a-linked-list/>  
+<https://leetcode.com/problems/unique-binary-search-trees/>  
 
-![](/assets/img/sample/leetcode/1721/Problem.JPG)  
+![](/assets/img/sample/leetcode/96/Problem.JPG)
 
 -----  
 
 ## 2. Input , Output
 
-![](/assets/img/sample/leetcode/1721/input.JPG)  
+![](/assets/img/sample/leetcode/96/input.JPG)  
+
 
 -----  
 
 ## 3. 분류 및 난이도
 
-Medium 난이도입니다.  
-3월 14일자 챌린지 문제입니다. 
+Medium 난이도 문제입니다.  
+leetcode Top 100 Liked 문제입니다.  
+
 
 -----  
 
 ## 4. 문제 해석
 
-- k가 주어집니다. 앞에서 k 번째 노드와 뒤에서 k번째 노드의 값을 바꿔줍니다.
-
+- DP문제입니다. 이런 경우의 수 문제는 규칙이 있을 수 밖에.. 없을 것입니다.
+- 점화식을 해석, 생각하는 데 오래걸렸고 생각하기 힘듭니다.
+- 만약 n=5라고 하면 {1,2,3,4,5}이렇게 트리의 루트가 될 수 있습니다. '1'를 루트노드라고 하면 왼쪽 자식에는 올 것이 없고 오른쪽 자식에는 {2,3,4,5}를 트리로 만들어야하는데 이 경우의 수는 n=4일 때의 경우의 수와 같습니다. '2'를 루트노드라고 하면 왼쪽 자식에는 {1}, 오른쪽 자식에는 {3,4,5}가 와야하는데 이는 왼쪽의 경우 n=1, 오른쪽 자식은 n=3인 경우의 수입니다. 이런식으로 진행하다보면
+따라서 밑과 같은 점화식이 성립하는 것입니다.
 
 -----  
 
 ## 5. code
 
+**python**
+
+```python
+class Solution:
+    def numTrees(self, n: int) -> int:
+        dp =[0] * 20
+        dp[0] = 1
+        dp[1] = 1
+        for i in range(2,n+1):
+            for j in range(1,i+1):
+                dp[i] = dp[i] + dp[j-1] * dp[i-j]
+        return dp[n]
+```
+
+-----  
+
 **c++**
 
 ```c++
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
 class Solution {
 public:
-    //전체 사이즈 계산
-    void calsize(ListNode* head, int& count)
-    {
-        if(head->next==nullptr)
-            return;
-        calsize(head->next,++count);
-    }
-    void swappointer(ListNode* head,int count, int k,ListNode*& first,ListNode*& second,int size)
-    {
-        if(head==nullptr)
-            return ;
-        if( k== count)
-        {
-            first = head;
-        }
-        if(size - k +1== count)
-        {
-            second = head;
-            int temp = first->val;
-            first->val = second->val;
-            second->val= temp;
-        }
-        swappointer(head->next,++count,k,first,second,size);
-    }
-    ListNode* swapNodes(ListNode* head, int k) {
-        //첫 번째 돌 때 전체의 갯수를 알게하자.
-        ListNode* tempsize = head;
-        int size = 1;
-        calsize(tempsize,size);
-        cout<<size;
-        ListNode* first;
-        ListNode* second;
-        //second를 먼저 접근할 일을 방지
-        if(size/2 < k)
-            k = size-k+1;
-        swappointer(tempsize,1,k,first,second,size);
-        return head;
-    
+    int numTrees(int n) {
+        int dp[20]={0,};
+        dp[0] = 1;
+        dp[1] = 1;
+        for(int i = 2; i <= n ;++i)
+            for(int j = 1;j<=i;++j)
+                dp[i] += (dp[j-1] * dp[i-j]);
+        return dp[n];
     }
 };
 ```
@@ -102,6 +82,9 @@ public:
 
 ## 6. 결과 및 후기, 개선점
 
-**c++ 99%**
+코드에 대한 설명이 필요하신 분은 댓글을 달아주세요.!!
 
-![](/assets/img/sample/leetcode/1721/result.JPG)  
+**c++ 100% python 84%**  
+![](/assets/img/sample/leetcode/96/result.JPG)  
+
+ 
