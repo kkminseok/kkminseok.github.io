@@ -78,7 +78,7 @@ public:
 코드에 대한 설명이 필요하신 분은 댓글을 달아주세요.!!
 
 **c++ 100% python ??%** 
-![](/assets/img/sample/leetcode/196/result.JPG)  
+![](/assets/img/sample/leetcode/198/result.JPG)  
 
 
 
