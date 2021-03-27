@@ -2,7 +2,7 @@
 title: leetcode(리트코드)1143-Common Subsequence
 author: 강민석
 date: 2021-03-25 07:00:00 +0800
-categories: [leetcode,medium]
+categories: [leetcode,Medium]
 tags: [leetcode,Facebook]
 math: true
 mermaid: true

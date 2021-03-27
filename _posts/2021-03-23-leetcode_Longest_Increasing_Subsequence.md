@@ -2,7 +2,7 @@
 title: leetcode(리트코드)300-Longest Increasing Subsequence
 author: 강민석
 date: 2021-03-23 12:00:00 +0800
-categories: [leetcode,medium]
+categories: [leetcode,Medium]
 tags: [leetcode,Facebook]
 math: true
 mermaid: true
