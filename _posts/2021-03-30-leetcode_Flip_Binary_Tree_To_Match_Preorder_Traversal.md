@@ -1,5 +1,5 @@
 ---
-title: leetcode(리트코드)3월28일 challenge971-Flip Binary Tree To Match Preorder Traversal
+title: leetcode(리트코드)3월29일 challenge971-Flip Binary Tree To Match Preorder Traversal
 author: 강민석
 date: 2021-03-30 12:00:56 +0800
 categories: [leetcode,Medium]
@@ -10,7 +10,7 @@ image:
 comments: true
 ---
 
-**leetcode March 28일 - Flip Binary Tree To Match Preorder Traversal 문제입니다.**
+**leetcode March 29일 - Flip Binary Tree To Match Preorder Traversal 문제입니다.**
 
 ## 1. 문제
 <https://leetcode.com/problems/flip-binary-tree-to-match-preorder-traversal/>  
