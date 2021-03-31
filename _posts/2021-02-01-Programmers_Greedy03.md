@@ -2,7 +2,7 @@
 title: Programmers_Greedy03 - 섬 연결하기
 author: 강민석
 date: 2021-02-01 13:09:00 +0800
-categories: [Algorithm,Greedy]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Greedy]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Programmers_sort02 - 가장 큰 수
 author: 강민석
 date: 2021-01-28 15:09:00 +0800
-categories: [Algorithm,Sort]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Sort]
 math: true
 mermaid: true

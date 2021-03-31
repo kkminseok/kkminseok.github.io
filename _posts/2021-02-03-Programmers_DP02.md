@@ -2,7 +2,7 @@
 title: Programmers_DP02 - 정수 삼각형
 author: 강민석
 date: 2021-02-03 12:03:00 +0800
-categories: [Algorithm,DP]
+categories: [Algorithm,Programmers]
 tags: [Programmers,DP]
 math: true
 mermaid: true

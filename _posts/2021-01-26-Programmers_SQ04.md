@@ -2,7 +2,7 @@
 title: Programmers_Stack/Queue04 - 프린터
 author: 강민석
 date: 2021-01-26 15:09:00 +0800
-categories: [Algorithm,Queue]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Queue]
 math: true
 mermaid: true

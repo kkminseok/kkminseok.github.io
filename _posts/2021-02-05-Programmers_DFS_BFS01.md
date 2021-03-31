@@ -2,7 +2,7 @@
 title: Programmers_BFS/DFS01 - 타겟 넘버
 author: 강민석
 date: 2021-02-05 12:03:00 +0800
-categories: [Algorithm,DFS]
+categories: [Algorithm,Programmers]
 tags: [Programmers,DFS]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Programmers_Stack/Queue03 - 다리를 지나는 트럭
 author: 강민석
 date: 2021-01-26 15:07:00 +0800
-categories: [Algorithm,Queue]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Queue]
 math: true
 mermaid: true

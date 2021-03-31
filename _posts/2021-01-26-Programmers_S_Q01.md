@@ -2,7 +2,7 @@
 title: Programmers_Stack/Queue01 - 주식 가격
 author: 강민석
 date: 2021-01-26 15:01:00 +0800
-categories: [Algorithm,Stack]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Stack]
 math: true
 mermaid: true

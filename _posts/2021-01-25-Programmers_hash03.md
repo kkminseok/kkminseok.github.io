@@ -2,7 +2,7 @@
 title: Programmers_hash03 - 위장
 author: 강민석
 date: 2021-01-25 12:05:00 +0800
-categories: [Algorithm,HASH]
+categories: [Algorithm,Programmers]
 tags: [Programmers,HASH]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Programmers_Greedy02 - 조이스틱
 author: 강민석
 date: 2021-02-01 13:06:00 +0800
-categories: [Algorithm,Greedy]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Greedy]
 math: true
 mermaid: true

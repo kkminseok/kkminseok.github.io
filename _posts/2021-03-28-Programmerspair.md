@@ -2,7 +2,7 @@
 title: Programmers_짝지어제거하기
 author: 강민석
 date: 2021-03-28 00:00:00 +0800
-categories: [Algorithm]
+categories: [Algorithm,Programmers]
 tags: [Programmers]
 math: true
 mermaid: true

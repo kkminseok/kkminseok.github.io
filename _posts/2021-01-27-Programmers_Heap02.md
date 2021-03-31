@@ -2,7 +2,7 @@
 title: Programmers_Heap02 - 디스크 컨트롤러
 author: 강민석
 date: 2021-01-27 12:09:00 +0800
-categories: [Algorithm,Heap]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Heap]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Programmers_DP04 - 도둑질
 author: 강민석
 date: 2021-02-04 15:03:00 +0800
-categories: [Algorithm,DP]
+categories: [Algorithm,Programmers]
 tags: [Programmers,DP]
 math: true
 mermaid: true

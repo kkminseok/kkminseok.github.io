@@ -2,7 +2,7 @@
 title: Programmers_sort01 - K번째 수
 author: 강민석
 date: 2021-01-28 15:09:00 +0800
-categories: [Algorithm,Sort]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Sort]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Programmers_hash02 - 전화번호 목록
 author: 강민석
 date: 2021-01-25 11:02:00 +0800
-categories: [Algorithm,HASH]
+categories: [Algorithm,Programmers]
 tags: [Programmers,HASH]
 math: true
 mermaid: true

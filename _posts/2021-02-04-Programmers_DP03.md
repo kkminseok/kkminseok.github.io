@@ -2,7 +2,7 @@
 title: Programmers_DP03 - 등굣길
 author: 강민석
 date: 2021-02-04 12:03:00 +0800
-categories: [Algorithm,DP]
+categories: [Algorithm,Programmers]
 tags: [Programmers,DP]
 math: true
 mermaid: true

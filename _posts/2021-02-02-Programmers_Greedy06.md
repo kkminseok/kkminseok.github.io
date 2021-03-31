@@ -2,7 +2,7 @@
 title: Programmers_Greedy06 - 단속카메라
 author: 강민석
 date: 2021-02-02 15:03:00 +0800
-categories: [Algorithm,Greedy]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Greedy]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Programmers_Greedy05 - 구명보트
 author: 강민석
 date: 2021-02-02 14:03:00 +0800
-categories: [Algorithm,Greedy]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Greedy]
 math: true
 mermaid: true

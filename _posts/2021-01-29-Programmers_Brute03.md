@@ -2,7 +2,7 @@
 title: Programmers_BruteForce03 - 카펫
 author: 강민석
 date: 2021-01-29 15:09:00 +0800
-categories: [Algorithm,Brute]
+categories: [Algorithm,Programmers]
 tags: [Programmers,Brute]
 math: true
 mermaid: true

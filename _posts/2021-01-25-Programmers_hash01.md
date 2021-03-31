@@ -2,7 +2,7 @@
 title: Programmers_hash01 - 완주하지 못한 선수
 author: 강민석
 date: 2021-01-25 09:02:00 +0800
-categories: [Algorithm,HASH]
+categories: [Algorithm,Programmers]
 tags: [Programmers,HASH]
 math: true
 mermaid: true

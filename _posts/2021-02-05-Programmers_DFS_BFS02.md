@@ -2,7 +2,7 @@
 title: Programmers_BFS/DFS02 - 네트워크
 author: 강민석
 date: 2021-02-05 15:03:00 +0800
-categories: [Algorithm,DFS]
+categories: [Algorithm,Programmers]
 tags: [Programmers,DFS]
 math: true
 mermaid: true
