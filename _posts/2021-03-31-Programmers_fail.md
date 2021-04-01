@@ -1,5 +1,5 @@
 ---
-title: Programmers_실패율
+title: Programmers_카카오blind2019 - 실패율
 author: 강민석
 date: 2021-03-31 13:30:40 +0800
 categories: [Algorithm,Programmers]

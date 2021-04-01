@@ -1,5 +1,5 @@
 ---
-title: Programmers_비밀지도
+title: Programmers_카카오blind2018 - 비밀지도
 author: 강민석
 date: 2021-03-31 14:30:40 +0800
 categories: [Algorithm,Programmers]

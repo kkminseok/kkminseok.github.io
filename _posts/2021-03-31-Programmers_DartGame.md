@@ -1,5 +1,5 @@
 ---
-title: Programmers_다트게임
+title: Programmers_카카오2018blind - 다트게임
 author: 강민석
 date: 2021-03-31 12:30:40 +0800
 categories: [Algorithm,Programmers]
