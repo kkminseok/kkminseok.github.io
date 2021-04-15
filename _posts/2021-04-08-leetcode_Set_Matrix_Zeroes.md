@@ -29,7 +29,7 @@ comments: true
 ## 3. 분류 및 난이도
 
 Medium 난이도 문제입니다.  
-<https://www.teamblind.com/post/New-Year-Gift---Curated-List-of-Top-75-LeetCode-Questions-to-Save-Your-Time-OaM1orEU에서> 추천한 문제입니다. 
+<https://www.teamblind.com/post/New-Year-Gift---Curated-List-of-Top-75-LeetCode-Questions-to-Save-Your-Time-OaM1orEU>에서 추천한 문제입니다. 
 
 
 -----  
