@@ -1,7 +1,7 @@
 ---
 title: Programmers_다음 큰 숫자
 author: 강민석
-date: 2021-05-06 02:34:40 +0800
+date: 2021-05-06 11:11:40 +0800
 categories: [Algorithm,Programmers]
 tags: [Programmers]
 math: true
@@ -35,7 +35,8 @@ Level 2난이도의 문제입니다.
 
 - c++에 bitset<>이 있듯이 파이썬에서도 bin()이라는 binary로 바꿔주는 함수가 있었습니다.
 - 순차적으로 풀면 효율성이 좋지 않을거라 생각했지만, 생각 이상으로 빨라서 당황했습니다.
-- bin()과 bin에서 제공하는 count()함수를 잘 이용해야겠습니다.
+- bin()과 bin에서 제공하는 count()함수를 잘 이용
+해야겠습니다.
 
 
 
@@ -44,8 +45,6 @@ Level 2난이도의 문제입니다.
 
 ## 4. 접근 방법을 적용한 코드
 
-
-**pyhon**
 
 ```python
 def solution(n):
