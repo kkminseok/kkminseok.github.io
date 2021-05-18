@@ -1,5 +1,5 @@
 ---
-title: Programmers_튜플
+title: Programmers_2019 카카오 인턴십 튜플
 author: 강민석
 date: 2021-05-17 01:34:40 +0800
 categories: [Algorithm,Programmers]
