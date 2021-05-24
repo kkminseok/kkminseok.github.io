@@ -1,5 +1,5 @@
 ---
-title: Programmers_문자열 압축 Python
+title: Programmers_2020카카오 문자열 압축 Python
 author: 강민석
 date: 2021-05-16 03:34:40 +0800
 categories: [Algorithm,Programmers]
