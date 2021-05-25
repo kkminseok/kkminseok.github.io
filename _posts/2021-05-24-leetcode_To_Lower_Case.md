@@ -9,7 +9,7 @@ image:
 comments: true
 ---
 
-**leetcode May 24일 - To Lower Caase 문제입니다.**
+**leetcode May 24일 - To Lower Case 문제입니다.**
 
 ## 1. 문제
 <https://leetcode.com/problems/to-lower-case/>  
@@ -27,7 +27,7 @@ comments: true
 
 ## 3. 분류 및 난이도
 
-Medium 난이도입니다.  
+Eazy 난이도입니다.  
 5월 24일자 챌린지 문제입니다. 
 
 -----  
