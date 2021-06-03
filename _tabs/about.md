@@ -26,3 +26,7 @@ leetcode 230문제
 
 ![](/assets/img/sample/0524programmers.JPG)
 
+
+visit : 
+
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fkkminseok.github.io&count_bg=%234044EF&title_bg=%231F7BC9&icon=bmw.svg&icon_color=%23AEC2F3&title=myblog&edge_flat=false)](https://hits.seeyoufarm.com)
