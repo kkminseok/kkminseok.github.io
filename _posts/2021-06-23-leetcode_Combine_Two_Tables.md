@@ -68,7 +68,7 @@ on Person.PersonId =Address.PersonId
 
 ![](/assets/img/sample/leetcode/175/result.JPG)  
 
-필요시 c++로 짜드리겠습니다.
+
 
 
 
