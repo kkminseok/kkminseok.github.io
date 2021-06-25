@@ -26,3 +26,8 @@ leetcode 250문제
 
 ![](/assets/img/sample/0604programmers.JPG)
 
+
+----
+
+6월  
+현재는 Naver D2, 우형 기술 블로그를 읽으면서 CS지식을 습득, DB,SQL, netWork관련 지식들을 공부하고 있습니다.
