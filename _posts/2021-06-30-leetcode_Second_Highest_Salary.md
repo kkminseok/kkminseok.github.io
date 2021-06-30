@@ -44,7 +44,7 @@ Eazy 난이도 문제입니다.
 
 코드설명
 
-**python**
+**MYSQL**
 
 ```sql
 -- 가장 큰 Salary보다 작은 값들 중에서 가장 큰 Salary를 뽑는 SQL입니다.
