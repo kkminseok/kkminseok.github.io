@@ -11,23 +11,23 @@ order: 4
 email : aaaa727@khu.ac.kr
 
 
-(6.4 기준)
+(7.18 기준)
 
-leetcode 250문제
+leetcode 335문제
 
-![](/assets/img/sample/0604leetcode.JPG)  
+![](/assets/img/sample/0718leetcode.JPG)  
 
 
 백준(현재 접음) 1800등대
 
-![](/assets/img/sample/0524baekjoon.JPG)  
+![](/assets/img/sample/0718baekjoon.JPG)  
 
-프로그래머스 800대
+프로그래머스 500등대
 
-![](/assets/img/sample/0604programmers.JPG)
+![](/assets/img/sample/0718programmers.JPG)
 
 
 ----
 
-6월  
+7월  
 현재는 Naver D2, 우형 기술 블로그를 읽으면서 CS지식을 습득, DB,SQL, netWork관련 지식들을 공부하고 있습니다.
