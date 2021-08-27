@@ -10,7 +10,7 @@ image:
 comments: true
 ---
 
-**프로그래머스 위클리 챌리닞 4주차 - 직업군 추천하기 문제 입니다.**
+**프로그래머스 위클리 챌린지 4주차 - 직업군 추천하기 문제 입니다.**
 
 ## 1. 문제
 <https://programmers.co.kr/learn/courses/30/lessons/84325>
