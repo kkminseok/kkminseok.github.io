@@ -13,23 +13,22 @@ comments: true
 **leetcode 565 - Array Nesting 문제입니다.**
 
 ## 1. 문제
-<https://leetcode.com/problems/array-nesting/> 
 
-![](/assets/img/sample/leetcode/565/Problem.JPG)
+<https://leetcode.com/problems/array-nesting/>
+
+!["None"](/assets/img/sample/leetcode/565/Problem.JPG)
 
 -----  
 
 ## 2. Input , Output
 
-![](/assets/img/sample/leetcode/565/input.JPG)  
-
+!["None"](/assets/img/sample/leetcode/565/input.JPG)  
 
 -----  
 
 ## 3. 분류 및 난이도
 
 Medium 난이도 문제입니다.  
-
 
 -----  
 
@@ -38,17 +37,11 @@ Medium 난이도 문제입니다.
 - nums가 주어집니다.
 - 해당 인덱스의 요소로 점프할 수 있다고 할 때 그렇게해서 만들어진 배열의 길이가 가장 긴 배열을 리턴하세요.
 
-
-
-
-
 -----  
 
 ## 5. code  
 
-
-
-**python**
+### python
 
 ```python
         
@@ -73,19 +66,12 @@ class Solution:
         
 ```
 
-
 -----
 
 ## 6. 결과 및 후기, 개선점
 
-
-
-![](/assets/img/sample/leetcode/565/result.JPG)  
-
-
+!["None"](/assets/img/sample/leetcode/565/result.JPG)  
 
 필요시 c++로 짜드립니다.
 
 설명이 필요하다면 댓글을 달아주세요.
-
-
