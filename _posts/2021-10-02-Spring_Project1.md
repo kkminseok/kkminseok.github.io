@@ -121,8 +121,6 @@ Optional<UserInfo> findByEmail(String email);
 
 JPArepositroy를 Extends하면 저렇게 함수를 작성하기만해도 알아서 JPQL을 만듦(수정하고 싶으면 내가 했던 @Query를 사용하면 됨)
 
-
-근데 그 내부에서 값을 view에서 name으로 지정한 username을 기준으로 찾나봄? 
-
+근데 그 내부에서 값을 view에서 name으로 지정한 username을 기준으로 찾나봄?
 
 csrf관련 : <https://reiphiel.tistory.com/entry/spring-security-csrf>
