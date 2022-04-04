@@ -1,7 +1,7 @@
 ---
 title: npm - self signed certificate in certificin Error 해결법
 author: 강민석
-date: 2022-04-04 00:34:40 +0800
+date: 2022-04-04 01:34:40 +0800
 categories: [Error,NPM]
 tags: [error]
 math: true
@@ -29,6 +29,7 @@ npm config set strict-ssl false
 
 
 쓸만한 글 : <http://blog.securekim.com/2019/03/bash-gradle-python-wget-nodejsnpm-apt.html>
+
 
 
 
