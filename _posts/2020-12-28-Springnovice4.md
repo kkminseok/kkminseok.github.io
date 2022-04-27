@@ -2,7 +2,7 @@
 title: Spring - 3 회원 관리 예제 (1)
 author: 강민석
 date: 2020-12-28 00:00:00 +0800
-categories: [Spring, kyhT&Novice&WebMVC]
+categories: [Java,1. Spring_김영한_스프링 입문]
 tags: [Spring Novice]
 math: true
 mermaid: true

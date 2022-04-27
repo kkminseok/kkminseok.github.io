@@ -2,7 +2,7 @@
 title: Spring - 4 스프링 빈과 의존관계
 author: 강민석
 date: 2020-12-30 01:00:00 +0800
-categories: [Spring, kyhT&Novice&WebMVC]
+categories: [Java,1. Spring_김영한_스프링 입문]
 tags: [Spring Novice]
 math: true
 mermaid: true

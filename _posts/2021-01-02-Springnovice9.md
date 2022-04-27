@@ -2,7 +2,7 @@
 title: Spring - 5 스프링 DB접근 기술 (2)
 author: 강민석
 date: 2021-01-02 12:00:00 +0800
-categories: [Spring, kyhT&Novice&WebMVC]
+categories: [Java,1. Spring_김영한_스프링 입문]
 tags: [Spring Novice]
 math: true
 mermaid: true
