@@ -2,7 +2,7 @@
 title: jekyll로 gitblog 시작하기[1] - 초기설정
 author: 강민석
 date: 2020-12-18 12:00:00 +0800
-categories: [Blogging]
+categories: [Blogging,Totorial]
 tags: [start git blog]
 math: true
 mermaid: true
@@ -11,6 +11,7 @@ comments : true
 ---
 
 # 1. git blog fork, clone, init
+
  깃 블로그를 시작하기 위해서는 먼저 테마를 골라야합니다.<br>
  
  테마사이트는 굉장히 많지만 나와같은 테마는 여기서 볼 수 있습니다.<br>
@@ -23,6 +24,7 @@ comments : true
 
 
 ### git Terminal
+
 ```terminal
     $ git clone https://github.com/USERNAME/USERNAME.github.io.git -b master --single-branch
 ```
