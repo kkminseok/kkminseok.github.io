@@ -2,7 +2,7 @@
 title: Spring - 1 프로젝트 환경설정(1)
 author: 강민석
 date: 2020-12-24 01:00:00 +0800
-categories: [Spring, kyhT&Novice&WebMVC]
+categories: [Java,Spring, kyhT&Novice&WebMVC]
 tags: [Spring Novice]
 math: true
 mermaid: true
