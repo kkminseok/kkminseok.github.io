@@ -2,7 +2,7 @@
 title: Spring - 다시 시청 중
 author: 강민석
 date: 2021-02-08 17:00:00 +0800
-categories: [Spring,KYHT&Novice&Point&Basic]
+categories: [Java,3. Spring_김영한_스프링-핵심-원리-기본편]
 tags: [Spring Novice]
 math: true
 mermaid: true
