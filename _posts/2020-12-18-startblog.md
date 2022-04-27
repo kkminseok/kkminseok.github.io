@@ -2,7 +2,7 @@
 title: jekyll로 gitblog 시작하기[1] - 초기설정
 author: 강민석
 date: 2020-12-18 12:00:00 +0800
-categories: [Blogging,Totorial]
+categories: [Blogging,Tutorial]
 tags: [start git blog]
 math: true
 mermaid: true
