@@ -2,7 +2,7 @@
 title: Spring Security 오류 FindBy~()가 DB에서 객체를 못 찾을 때
 author: 강민석
 date: 2021-10-02 00:34:50 +0800
-categories: [Spring,Study_Toy]
+categories: [Java,Spring_CS]
 tags: [Spring]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: Spring DAO란?, DTO란?, VO란?, DTO vs VO, DTO vs Domain, DAO vs Repository
 author: 강민석
 date: 2021-10-06 00:34:50 +0800
-categories: [Spring,Study_Toy]
+categories: [Java,Spring_CS]
 tags: [Spring]
 math: true
 mermaid: true

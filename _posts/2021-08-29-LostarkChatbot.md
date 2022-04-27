@@ -2,7 +2,7 @@
 title: (Project)로스트아크 레벨 알려주는 디스코드 챗봇만들기 
 author: 강민석
 date: 2021-08-29 00:34:50 +0800
-categories: [Toy,chatbot]
+categories: [Toy]
 tags: [chatbot]
 math: true
 mermaid: true

@@ -2,7 +2,7 @@
 title: CS-WebSocket,Socket.io정리
 author: 강민석
 date: 2021-06-25 01:34:50 +0800
-categories: [CS,Network]
+categories: [기술블로그]
 tags: [Network]
 math: true
 mermaid: true

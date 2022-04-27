@@ -2,7 +2,7 @@
 title: CS-우아한 형제 블로그 - 좋은 퍼블리셔란? 정리
 author: 강민석
 date: 2021-06-25 02:34:50 +0800
-categories: [CS,None]
+categories: [기술블로그]
 tags: []
 math: true
 mermaid: true

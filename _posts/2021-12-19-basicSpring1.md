@@ -2,8 +2,8 @@
 title: 백엔드 웹 개발 노트1 - 웹 애플리케이션 이해
 author: 강민석
 date: 2021-12-19 00:50:50 +0800
-categories: [Java,servlet]
-tags: [servlet]
+categories: [Java,6_Spring_김영한_스프링MVC 1편]
+tags: [Spring]
 math: true
 mermaid: true
 image: 

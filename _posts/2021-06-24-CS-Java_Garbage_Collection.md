@@ -2,7 +2,7 @@
 title: JAVA_CS-Garbage Collection에 대해서 정리
 author: 강민석
 date: 2021-06-24 01:34:50 +0800
-categories: [CS,JAVA]
+categories: [Java,CS]
 tags: [JAVA]
 math: true
 mermaid: true
