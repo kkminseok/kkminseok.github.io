@@ -2,8 +2,8 @@
 title: Spring - 1 객체 지향 설계와 스프링
 author: 강민석
 date: 2021-01-18 09:00:00 +0800
-categories: [Spring,KYHT&Novice&Point&Basic]
-tags: [Spring Novice]
+categories: [Java,3. Spring_김영한_스프링-핵심-원리-기본편]
+tags: [Spring]
 math: true
 mermaid: true
 image: 

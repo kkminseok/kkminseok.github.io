@@ -2,8 +2,8 @@
 title: Spring - 3 스프링 핵심 원리 - 객체 지향 원리 적용(1)
 author: 강민석
 date: 2021-01-19 09:00:00 +0800
-categories: [Spring,KYHT&Novice&Point&Basic]
-tags: [Spring Novice]
+categories: [Java,3. Spring_김영한_스프링-핵심-원리-기본편]
+tags: [Spring]
 math: true
 mermaid: true
 image: 

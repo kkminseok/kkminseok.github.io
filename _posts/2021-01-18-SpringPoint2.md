@@ -2,8 +2,8 @@
 title: Spring - 2 스프링 핵심 원리 1(1)
 author: 강민석
 date: 2021-01-18 10:00:00 +0800
-categories: [Spring,KYHT&Novice&Point&Basic]
-tags: [Spring Novice]
+categories: [Java,3. Spring_김영한_스프링-핵심-원리-기본편]
+tags: [Spring]
 math: true
 mermaid: true
 image: 
