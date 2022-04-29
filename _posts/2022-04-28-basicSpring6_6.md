@@ -1,6 +1,7 @@
 ---
 title: 백엔드 웹 개발 노트6.6 - Spring MVC Message Converter
-author: 강민석
+author: 
+  name: 강민석
 date: 2022-04-28 16:50:50 +0800
 categories: [Java,6_Spring_김영한_스프링MVC 1편]
 tags: [Spring]
