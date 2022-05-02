@@ -31,9 +31,9 @@ comments: true
 클라이언트의 Accept는 헤더는 서버에게 요구되는 데이터 방식인데, 당연하게도 클라이언트가 요구하는 데이터가 아니면 안되지 않겠는가.
 
 아무튼 스프링MVC는 다음의 경우에 HTTP 메시지 컨버터를 적용한다.
+
 - HTTP 요청 : @RequestBody, HttpEntity(RequestEntity)
 - HTTP 응답 : @ResponseBody, HttpEntity(ResponseEntity)
-
 
 메시지 컨버터의 인터페이스 코드를 보자.
 
@@ -129,7 +129,7 @@ void hello(@RequestBody BmiData data) {}
     - HTTP 요청의 Content-Type 미디어 타입을 지원하는가?
 4. canRead()의 조건을 만족하면 read()를 호출해서 객체를 생성하고, 반환한다.
 
-응답 데이터를 생성할 때 
+응답 데이터를 생성할 때
 
 1. 컨트롤러에서 @ResponseBody, HttpEntity로 값이 반환된다?
 2. 메시지 컨버터가 메시지를 쓸 수 있는지 확인하기 위해 canWrite()가 호출
@@ -163,7 +163,7 @@ void hello(@RequestBody BmiData data) {}
 
 ### 동작방식
 
-*ArgumentResolver*안에 있는 *supportParameter()*를 호출해서 파라미터에 대한 객체를 생성할 수 있는지 여부를 확인한다. 
+*ArgumentResolver*안에 있는 *supportParameter()*를 호출해서 파라미터에 대한 객체를 생성할 수 있는지 여부를 확인한다.
 
 생성할 수 있으면 객체를 생성해서 컨트롤러에 넘겨준다.
 
@@ -196,8 +196,6 @@ void hello(@RequestBody BmiData data) {}
 
 > 참고 : 스프링 MVC는 @RequestBody @ResponseBody 가 있으면 RequestResponseBodyMethodProcessor (ArgumentResolver) HttpEntity 가 있으면 HttpEntityMethodProcessor (ArgumentResolver)를 사용한다.
 
-
-
 ## 확장
 
 스프링은 위에서 말한 **HttpMessageConverter,HandlerMethodArgumentResovler, HandlerReturnValueHandler**를 인터페이스로 제공한다.
@@ -207,7 +205,3 @@ void hello(@RequestBody BmiData data) {}
 기능 확장은 **WebMvcConfiguer**를 상속받아서 가능하다. 여기서 다루지는 않을 것이다.!!
 
 필요할때 찾자 ㅎ
-
-
-
-
