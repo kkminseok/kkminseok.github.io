@@ -101,7 +101,7 @@ comments:
   giscus:
     repo: 'kkminseok/kkminseok.github.io'            # <gh-username>/<repo>
     repo_id:
-    category:
+    category: 'Announcements'
     category_id:
     mapping:          # optional, default to 'pathname'
     input_position:   # optional, default to 'bottom'
