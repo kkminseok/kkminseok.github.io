@@ -263,7 +263,7 @@ bd85e97e8c0d   wordpress   "docker-entrypoint.s…"   35 seconds ago   Up 33 sec
 
 50953포트에 연결되었습니다.
 
-> `docekr port wordpress`처럼 docker port <컨테이너 명>을 입력하면 해당 컨테이너가 사용중인 호스트의 포트가 출력 됩니다.
+> `docekr port wordpress`처럼 "docker port '컨테이너 명'"을 입력하면 해당 컨테이너가 사용중인 호스트의 포트가 출력 됩니다.
 {: .propmt-tip}
 
 ![](/assets/img/DockerPost/start_docker_quv/C2/wordpress.png)
