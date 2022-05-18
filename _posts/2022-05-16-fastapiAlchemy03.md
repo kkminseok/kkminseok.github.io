@@ -1,5 +1,5 @@
 ---
-title: FastAPI 공식문서 따라하기 번외[10][2] - Alchemy연동
+title: FastAPI 공식문서 따라하기 번외[10][2]끝 - Alchemy연동
 author: 
     name: minseok
     link: https://github.com/kkminseok
@@ -319,5 +319,5 @@ def get_db(request: Request):
   - 심지어 요청이 `DB` 접근이 필요하지 않을지라도 커넥션을 맺는다.
 
 > 공식문서에서는 `yield`에 대한 이해도가 있는 경우 `yield`를 사용하는것이 더 좋다고 한다. 
-{: prompt-tip}
+{: .prompt-tip}
 
