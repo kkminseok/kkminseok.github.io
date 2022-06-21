@@ -19,3 +19,4 @@ order: 4
 - [부의 본능](https://kkminseok.github.io/posts/book4/)[저) 브라운스톤] / 2021.10.25
 - [돈의속성](https://kkminseok.github.io/posts/book5/)[저) 김승호] / 2021.10.31
 - [잠든 사이 월급 버는 미국 배당주 투자](https://kkminseok.github.io/posts/book6/)[저) 베가스풍류객 등] / 2021.11.28
+- [아기곰의 재테크 불변의 법칙 개정판](https://kkminseok.github.io/posts/book7/)[저) 아기곰] / 2021.11.29
