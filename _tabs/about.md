@@ -13,5 +13,5 @@ order: 4
 
 ## 📖 현재까지 읽은 경제책들
 
-- [돈의속성](https://kkminseok.github.io/posts/book1/)[저) 김승호] / 2021.10.31
-- 
+- [시간여행TV의 만화로 배우는 주식 투자](https://kkminseok.github.io/posts/book1/)[저) 시간여행TV] / 2021.08.30
+- [돈의속성](https://kkminseok.github.io/posts/book2/)[저) 김승호] / 2021.10.31
