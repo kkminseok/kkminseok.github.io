@@ -25,3 +25,4 @@ order: 4
 - 돈의 심리학[저) 모건 하우절] / 2022.02.25
 - [돈 뜨겁게 사랑하고 차갑게 다루어라](https://kkminseok.github.io/posts/book8/)[저) 앙드레 코스톨라니] / 2022.05.13
 - [Fire(파이어)](https://kkminseok.github.io/posts/book9/)[저) 강환국] / 2022.05.25
+- [변화하는 세계질서](https://kkminseok.github.io/posts/book10/)[저) 레이달리오] / 2022.06.20
