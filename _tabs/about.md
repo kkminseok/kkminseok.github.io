@@ -15,4 +15,6 @@ order: 4
 
 - [시간여행TV의 만화로 배우는 주식 투자](https://kkminseok.github.io/posts/book1/)[저) 시간여행TV] / 2021.08.30
 - [인성의 힘](https://kkminseok.github.io/posts/book2/)[저) 로버트 캐슬런2세] / 2021.09.29
-- [돈의속성](https://kkminseok.github.io/posts/book3/)[저) 김승호] / 2021.10.31
+- [부자아빠 가난한 아빠](https://kkminseok.github.io/posts/book3/)[저) 로버트 기요사키] / 2021.10.10
+- [부의 본능](https://kkminseok.github.io/posts/book4/)[저) 로버트 기요사키] / 2021.10.25
+- [돈의속성](https://kkminseok.github.io/posts/book5/)[저) 김승호] / 2021.10.31
