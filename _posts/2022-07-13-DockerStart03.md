@@ -222,7 +222,7 @@ docker volume prune
 
 > `-v`옵션 대신 `--mount` 옵션을 사용할 수 있습니다. 구문이 좀 더 명시적입니다. `docker run -i -t --name mount_option_1 \ 
 --mount type=volume, source=myvolume, target=/root \
-ubuntu:14.04
+ubuntu:14.04`
 호스트의 디렉터리를 컨테이너 내부에 마운트하는 경우 type에 `bind`를, source에는 호스트의 디렉터리 경로를 지정해야 합니다.
 {: .prompt-tip }
 
