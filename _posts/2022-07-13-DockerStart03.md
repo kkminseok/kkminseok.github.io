@@ -168,7 +168,7 @@ hello,volume
 > 뿐만 아니라 `docker container inspect <cotainer name>`, `docker volume inspect <volume>`와 같이 원하는 정보를 출력할 수 있습니다.
 {: .prompt-tip }
 
-하지만 mac에서는 `docker` 동작방식이 달라 이 방식으로 확인이 불가능 합니다.
+> 하지만 mac에서는 `docker` 동작방식이 달라 이 방식으로 확인이 불가능 합니다.
 {: .prompt-warn }
 
 -----
