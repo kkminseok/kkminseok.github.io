@@ -26,9 +26,9 @@ order: 4
 - [돈 뜨겁게 사랑하고 차갑게 다루어라](https://kkminseok.github.io/posts/book8/)[저) 앙드레 코스톨라니] / 2022.05.13
 - [Fire(파이어)](https://kkminseok.github.io/posts/book9/)[저) 강환국] / 2022.05.25
 - [변화하는 세계질서](https://kkminseok.github.io/posts/book10/)[저) 레이달리오] / 2022.06.20
-- [CleanCode](https://kkminseok.github.io/posts/book11/)[저) 로버트 마틴] / 2022.06.21
+- [CleanCode](https://kkminseok.github.io/posts/book11/)[저) 로버트 마틴] / 2022.06.21 **3회독**
 - [CleanArchitecture](https://kkminseok.github.io/posts/book12/)[저) 로버트 마틴] / 2022.07.12 
-- [실용주의 프로그래머]()[저) 앤드류 헌트, 데이비드 토머스] / 출퇴근시 읽는중..
+- [실용주의 프로그래머]()[저) 앤드류 헌트, 데이비드 토머스] / 2022.08.10 추가예정
 - [IT엔지니어를 위한 네트워크 입문]()[저)고재성, 이상훈] / 집에서 읽는중..
 - 아비투스[저) 도리스 메르틴] / 
 - 지적인 대화를 위한 넓고 얉은 지식1[저) 채사장] /
