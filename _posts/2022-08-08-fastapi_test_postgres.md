@@ -23,6 +23,10 @@ comments : true
 
 일단 기존 Docker로 띄운 Postgres코드이다.
 
+패키지는 깃허브에 나와있다.
+
+깃허브 주소: "<https://github.com/testcontainers/testcontainers-python>"
+
 ```python
 @pytest.fixture(scope="session", autouse=True)
 def db_container(session_mocker):
