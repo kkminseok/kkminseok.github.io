@@ -10,7 +10,7 @@ order: 4
 > 그냥 이것저것 배우는걸 좋아합니다. 경제나 책, 백엔드, 프론트 다 좋아합니다.
 {: .prompt-tip }
 
-> CS관련 지식 저장소가 있습니다. [저장소]<https://github.com/kkminseok/TIL_Interview> 많은 관심 부탁드립니다.
+> CS관련 지식 저장소가 있습니다. [저장소](https://github.com/kkminseok/TIL_Interview) 많은 관심 부탁드립니다.
 {: .prompt-tip}
 
 
