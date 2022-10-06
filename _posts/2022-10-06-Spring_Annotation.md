@@ -68,10 +68,6 @@ jls
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Retention {
-    /**
-     * Returns the retention policy.
-     * @return the retention policy
-     */
     RetentionPolicy value();
 }
 ```
@@ -85,24 +81,8 @@ public @interface Retention {
 // RetentionPolicy enum
 
 public enum RetentionPolicy {
-    /**
-     * Annotations are to be discarded by the compiler.
-     */
     SOURCE,
-
-    /**
-     * Annotations are to be recorded in the class file by the compiler
-     * but need not be retained by the VM at run time.  This is the default
-     * behavior.
-     */
     CLASS,
-
-    /**
-     * Annotations are to be recorded in the class file by the compiler and
-     * retained by the VM at run time, so they may be read reflectively.
-     *
-     * @see java.lang.reflect.AnnotatedElement
-     */
     RUNTIME
 }
 
@@ -164,29 +144,6 @@ SOURCE, CLASS, RUNTIME을 넘길 수 있으며 주석으로 살아있는 시점�
 @Configuration
 @Indexed
 public @interface SpringBootConfiguration {
-
-	/**
-	 * Specify whether {@link Bean @Bean} methods should get proxied in order to enforce
-	 * bean lifecycle behavior, e.g. to return shared singleton bean instances even in
-	 * case of direct {@code @Bean} method calls in user code. This feature requires
-	 * method interception, implemented through a runtime-generated CGLIB subclass which
-	 * comes with limitations such as the configuration class and its methods not being
-	 * allowed to declare {@code final}.
-	 * <p>
-	 * The default is {@code true}, allowing for 'inter-bean references' within the
-	 * configuration class as well as for external calls to this configuration's
-	 * {@code @Bean} methods, e.g. from another configuration class. If this is not needed
-	 * since each of this particular configuration's {@code @Bean} methods is
-	 * self-contained and designed as a plain factory method for container use, switch
-	 * this flag to {@code false} in order to avoid CGLIB subclass processing.
-	 * <p>
-	 * Turning off bean method interception effectively processes {@code @Bean} methods
-	 * individually like when declared on non-{@code @Configuration} classes, a.k.a.
-	 * "@Bean Lite Mode" (see {@link Bean @Bean's javadoc}). It is therefore behaviorally
-	 * equivalent to removing the {@code @Configuration} stereotype.
-	 * @return whether to proxy {@code @Bean} methods
-	 * @since 2.2
-	 */
 	@AliasFor(annotation = Configuration.class)
 	boolean proxyBeanMethods() default true;
 
@@ -211,6 +168,49 @@ public @interface SpringBootConfiguration {
 
 그 방식은 모르겠지만 일단 뒤로 넘어가면 힌트가 있을 수 있다. 그래서 다음부분을 보겠다.
 
+그러면 `@Indexed`는 무엇인가??
+
+JavaDoc를 읽어보면 굉장히 어렵게 설명이 되어있다..
+
+```text
+Indicate that the annotated element represents a stereotype for the index.
+The CandidateComponentsIndex is an alternative to classpath scanning that uses a metadata file generated at compilation time. The index allows retrieving the candidate components (i.e. fully qualified name) based on a stereotype. This annotation instructs the generator to index the element on which the annotated element is present or if it implements or extends from the annotated element. The stereotype is the fully qualified name of the annotated element.
+
+Consider the default Component annotation that is meta-annotated with this annotation. If a component is annotated with Component, an entry for that component will be added to the index using the org.springframework.stereotype.Component stereotype.
+
+This annotation is also honored on meta-annotations. Consider this custom annotation:
+```
+
+`@Indexed`는 `@Override`처럼 명시를 한다. 인덱스라는 명시를 하고, 내부적으로 인덱싱을 한다.
+
+스프링은 패키지들에 어노테이션이 붙은 컴포넌트를 스캔한다. 컴파일때 스프링은 인덱싱된 candidate components 즉, 컴포넌트 후보자들을 이용하여 빈들을 생성한다.
+
+스프링은 `@Indexed`가 붙은 클래스들을 찾고 인덱스에 추가한다. 그리고 `@Indexed`가 붙은 어노테이션들에게 메타 어노테이션 권한을 부여한다.
+
+메타 어노테이션이란 다른 어노테이션에 해당 어노테이션을 붙일 수 있게 해줘서 여러 어노테이션이 붙은 하나의 어노테이션을 사용자가 만들 수 있게 해준다.
+
+예를 들어서 `@Component`어노테이션을 보겠다.
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Indexed
+public @interface Component { }
+```
+
+`@Component`어노테이션이 붙은 그 어떤것도 컴포넌트 인덱스에 추가될 후보자가 된다. 비슷하게 `@Repository`, `@Service`도 결국 `@Component`가 명시되어있으므로 모두 컴포넌트 인덱스에 추가된다.
+
+내가 만들고 있는 프로젝트의 경우 `META-INF/spring.components` 파일로 들어가면
+
+```text
+com.javabyexamples.spring.core.beanindexing.indexedbased.UserController=org.springframework.stereotype.Component
+com.javabyexamples.spring.core.beanindexing.indexedbased.UserServiceImpl=org.springframework.stereotype.Component
+com.javabyexamples.spring.core.beanindexing.indexedbased.UserRepository=org.springframework.stereotype.Component
+```
+
+이런식으로 들어갈 것이다. 인터페이스랑 클래스에도 사용이 가능하며, 상속을 받을 수도 있다.
+
 는 2편에서 계속 작성..
 
 ## **여담**
@@ -226,3 +226,5 @@ public @interface SpringBootConfiguration {
 - <https://jeong-pro.tistory.com/234> Retention 설명 관련글.
 - <https://hongsii.github.io/2018/12/12/java-annotation/> Inherited어노테이션 예제
 - <https://livenow14.tistory.com/52> Spring 설정 계층
+- <https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Indexed.html> @Indexed javaDoc
+- <https://www.intertech.com/spring-4-meta-annotations/> what is meta Annotation
