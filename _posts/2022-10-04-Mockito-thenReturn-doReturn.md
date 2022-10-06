@@ -4,7 +4,7 @@ author:
     name: minseok
     link: https://github.com/kkminseok
 date: 2022-10-04 00:02:00 +0800
-categories: [Java,Spring_test]
+categories: [Java,Spring]
 tags: [Spring]
 math: true
 mermaid: true
