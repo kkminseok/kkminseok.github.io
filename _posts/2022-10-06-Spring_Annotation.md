@@ -213,9 +213,27 @@ com.javabyexamples.spring.core.beanindexing.indexedbased.UserRepository=org.spri
 
 는 2편에서 계속 작성..
 
-## **여담**
+## **여담 및 결론**
 
 오래 안 걸릴줄 알고 회사 점심시간 1시간을 할애해서 작성하였는데, 생각보다 작성해야할 내용이 많았다. 그래서 집에서 추가로 2편을 작성해야할것 같다.
+
+현재까지를 요약하자면 다음과 같다.
+
+```text
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@SpringBootConfiguration
+```
+
+`@SpringBootApplication`은 
+
+- `@Target`을 통해 클래스위에 붙을 수 있음을 알려주고
+- `@Retention`을 통해 런타임때까지 살아있음을 알려주고
+- `@Documented`를 통해 Javadoc에 설명을 달아주고
+- `@Inherited`를 통해 해당 어노테이션을 상속받아도 똑같이 적용되게 해주고
+- `@SpringBootConfiguration`을 통해 설정값들을 스캔하고 이 어노테이션을 인덱스에 추가해 스프링이 뜰때 우선적으로 스캔할 수 있게한다.
 
 
 
