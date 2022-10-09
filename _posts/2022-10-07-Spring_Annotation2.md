@@ -152,6 +152,7 @@ public boolean match(MetadataReader metadataReader, MetadataReaderFactory metada
 
 더 깊이 파고 싶지만 머리가 복잡해져간다. 점점 산으로 가는 느낌도 들고 일단 목적에 맞게 `@SpringBootApplication` 어노테이션이 어떤식으로 동작되는지 간단하게 알아봤다.
 
+
 ## **Reference**
 
 - <https://www.baeldung.com/spring-componentscan-filter-type> filterType
