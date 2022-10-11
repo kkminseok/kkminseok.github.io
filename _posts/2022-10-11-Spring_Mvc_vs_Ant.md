@@ -52,6 +52,10 @@ AntPattern은 뒤에 `슬래시(/)`가 오면 인식을 못하는데 mvcPattern�
 /api/user/{num}
 /api/user/{*num} //매칭되어도되고 안 되어도됨.
 ```
+
+> 문제를 발견했다. 위 두개가 동작방식이 달라서인지 필자가 작성한 코드에서 에러가 떴다. <https://github.com/kkminseok/real-world-springboot/wiki/%F0%9F%91%8D%EA%B2%AA%EC%9D%80-%EB%AC%B8%EC%A0%9C>에서 확인이 가능하고, 해결법을 찾으면 따로 포스팅할 것이다. 사실 내부동작이 달라서 나타나는 문제가 아닐수도 있다.
+{: .prompt-danger}
+
 ## **결론**
 
 결론적으로 `mvcMatchers`가 보안적으로 우수하고 유연하게 대처가 가능하다니 이것을 고려해보도록 하자.
