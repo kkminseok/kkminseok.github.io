@@ -13,7 +13,7 @@ order: 4
 > CS관련 지식 저장소가 있습니다. [저장소](https://github.com/kkminseok/TIL_Interview) 많은 관심 부탁드립니다.
 {: .prompt-tip}
 
-> 현재는 [리얼월드]((https://kkminseok.github.io/categories/real-world-spring/)) 프로젝트 와 [야근은 병이다.](https://glorious-double-0a3.notion.site/07cad79efc774ef0bed1c0a483701a97)프로젝트를 같이 하고 있습니다.
+> 현재는 [리얼월드](https://kkminseok.github.io/categories/real-world-spring/)프로젝트 와 [야근은 병이다.](https://glorious-double-0a3.notion.site/07cad79efc774ef0bed1c0a483701a97)프로젝트를 같이 하고 있습니다.
 {: .prompt-info}
 
 
