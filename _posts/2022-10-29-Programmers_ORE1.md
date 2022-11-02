@@ -28,7 +28,7 @@ comments : true
 
 Programmers 문제입니다.  
 
-Level 1난이도의 문제입니다. 
+Level 1난이도의 문제입니다.
 
 
 -----  
