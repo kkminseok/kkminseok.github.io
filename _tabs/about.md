@@ -45,7 +45,7 @@ order: 4
 
 - [변화하는 세계질서](https://kkminseok.github.io/posts/book10/)[저) 레이달리오] / 2022.06.20
 
-- [CleanCode](https://kkminseok.github.io/posts/book11/)[저) 로버트 마틴] / 2022.06.21 **3회독**
+- [CleanCode](https://kkminseok.github.io/posts/book11/)[저) 로버트 마틴] / 2022.06.21 3회독
 
 - [CleanArchitecture](https://kkminseok.github.io/posts/book12/)[저) 로버트 마틴] / 2022.07.12 
 
@@ -53,7 +53,9 @@ order: 4
 
 - [IT엔지니어를 위한 네트워크 입문]()[저)고재성, 이상훈] / 집에서 읽는중..
 
-- [Code]()[저) 찰스 팻졸드] / 08.18 현재 읽는중
+- [Code]()[저) 찰스 팻졸드] / 2022.10.01
+
+- 가상 면접 사례로 배우는 대규모 시스템 설계 기초 / 알렉스 쉬
 
 - 아비투스[저) 도리스 메르틴] / 
 
