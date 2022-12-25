@@ -1,4 +1,7 @@
 # The Site Configuration
+url: "https://kkminseok.github.io" # the base hostname & protocol for your site
+plugins:
+  - jekyll-sitemap
 
 # Import the theme
 theme: jekyll-theme-chirpy
