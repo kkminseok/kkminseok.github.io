@@ -13,8 +13,18 @@ order: 4
 > CS관련 지식 저장소가 있습니다. [저장소](https://github.com/kkminseok/TIL_Interview) 많은 관심 부탁드립니다.
 {: .prompt-tip}
 
-> 현재는 [리얼월드](https://kkminseok.github.io/categories/real-world-spring/)프로젝트 와 [야근은 병이다.](https://glorious-double-0a3.notion.site/07cad79efc774ef0bed1c0a483701a97)프로젝트를 같이 하고 있습니다.
+> 현재는 [리얼월드](https://kkminseok.github.io/categories/real-world-spring/)프로젝트 [야근은 병이다.](https://glorious-double-0a3.notion.site/07cad79efc774ef0bed1c0a483701a97)프로젝트를 진행하였습니다.
+현재는 [깃허브 트래픽 관리](https://github.com/kkminseok/my-Repository-Traffic)프로젝트를 진행하고 있습니다.
 {: .prompt-info}
+
+> [리얼월드](https://kkminseok.github.io/categories/real-world-spring/) 프로젝트는 공식 홈페이지에 등록된 이력이 있습니다.[확인](https://www.realworld.how/)
+{: .prompt-info}
+
+![](/assets/realworld.png)
+
+
+
+
 
 
 ## 📖 현재까지 읽은 책들
