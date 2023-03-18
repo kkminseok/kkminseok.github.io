@@ -7,7 +7,7 @@ order: 4
 > 문의사항은 `minseok19950727@gmail.com`로 주세요. dnd 8기 활동 후 개발 운영진 소속으로 활동 중입니다.
 {: .prompt-tip }
 
-> 그냥 이것저것 배우는걸 좋아합니다. 경제나 책, 백엔드, 프론트 다 좋아합니다.
+> 2023년 3월 기준 1년 4개월 경력을 가지고 있습니다.
 {: .prompt-tip }
 
 > CS관련 지식 저장소가 있습니다. [저장소](https://github.com/kkminseok/TIL_Interview) 많은 관심 부탁드립니다.
