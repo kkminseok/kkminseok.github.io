@@ -3,7 +3,7 @@ title: Modern Java In Action - Chapter01 기초
 author: 
     name: minseok
     link: https://github.com/kkminseok
-date: 2022-03-18 00:02:00 +0800
+date: 2023-03-18 00:02:00 +0800
 categories: [Java,Modern Java In Action]
 tags: [Modern Java In Action]
 math: true
@@ -74,7 +74,40 @@ Java8부터는 메서드를 다른 메서드의 인수로 넘겨주는 기능을
 > 개인 의견: 기본적으로 자바에서 제공하는 `ConcurrentHashMap`같이 안전한 자료구조를 제공하는 방법이 생각난다. 책에서 향후 또 다룰 것 같다.
 {: .prompt-info}
 
+## 📜 메서드 참조
 
+메서드 참조란 개념은 자바8에서 새로 생긴 기능이다. 기존에는 어떠한 필터작업을 할 때 객체를 생성해서 메서드에 넘기는 방식으로 작업을 하였다.
+
+```java
+@Test
+void 자바8이전작업처리(){
+    File[] hiddenFiles = new File(".").listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+            return pathname.isHidden();
+        }
+    });
+
+}
+```
+
+숨김파일을 찾는 코드인데, 코드 수도 너무 길고 굳이 `FileFilter`를 인스턴스화해서 해결한다.
+
+자바8 이후에는 간단하게 코드를 짤 수 있다.
+
+```java
+    @Test
+    void 자바8이후작업처리(){
+        File[] Java8HiddenFiles = new File(".").listFiles(File::isHidden);
+    }
+```
+
+`::`라는 메서드 참조를 이용하여 간단하게 작성이 가능하다. 내부동작은 3장에 나온다하니 일단은 넘어가기로 했다.
+
+> 메서드 참조는 객체를 생성하지 않고 런타임 시에 메서드를 참조하여 호출할 수 있는 기능이다.
+{: .prompt-tip}
+
+- 이후 책에는 람다와 스트림 자바8에 추가된 기능에 대한 간단한 예제에 대한 내용이 나오지만, 어차피 점차 자세히 다뤄지고 있으므로 시간이 아까워서 여기서 정리하지 않을 것이다.
 
 
 
