@@ -1,5 +1,5 @@
 ---
-title: Modern Java In Action - Chapter01 기초
+title: 2번 읽는 Modern Java In Action - Chapter01 기초
 author: 
     name: minseok
     link: https://github.com/kkminseok
