@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="ko" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="generator" content="Jekyll v4.2.2" /><meta property="og:title" content="2번 읽는 Modern Java In Action - Chapter05 스트림활용(1)" /><meta name="author" content="minseok" /><meta property="og:locale" content="ko" /><meta name="description" content="🔅 개요" /><meta property="og:description" content="🔅 개요" /><link rel="canonical" href="https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/" /><meta property="og:url" content="https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/" /><meta property="og:site_name" content="민석강" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2023-04-17T01:02:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="2번 읽는 Modern Java In Action - Chapter05 스트림활용(1)" /><meta name="twitter:site" content="@none" /><meta name="twitter:creator" content="@minseok" /><meta name="google-site-verification" content="_icgy_j24DLYroQvKYTiffcqemP7ldWCxmrM2cGtYck" /> <script type="application/ld+json"> {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"minseok"},"dateModified":"2023-04-17T01:02:00+09:00","datePublished":"2023-04-17T01:02:00+09:00","description":"🔅 개요","headline":"2번 읽는 Modern Java In Action - Chapter05 스트림활용(1)","mainEntityOfPage":{"@type":"WebPage","@id":"https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/"},"url":"https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/"}</script><title>2번 읽는 Modern Java In Action - Chapter05 스트림활용(1) | 민석강</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="민석강"><meta name="application-name" content="민석강"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://cdn.jsdelivr.net" ><link rel="dns-prefetch" href="https://cdn.jsdelivr.net" ><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato&family=Source+Sans+Pro:wght@400;600;700;900&display=swap"><link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials"><link rel="dns-prefetch" href="https://www.google-analytics.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get MODE_ATTR() { return "data-mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } static get ID() { return "mode-toggle"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } let self = this; /* always follow the system prefers */ this.sysDarkPrefers.addEventListener("change", () => { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.notify(); }); } /* constructor() */ get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode === ModeToggle.DARK_MODE; } get isLightMode() { return this.mode === ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer)) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } setDark() { $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_ATTR); sessionStorage.removeItem(ModeToggle.MODE_KEY); } /* Notify another plugins that the theme mode has changed */ notify() { window.postMessage({ direction: ModeToggle.ID, message: this.modeStatus }, "*"); } } /* ModeToggle */ const toggle = new ModeToggle(); function flipMode() { if (toggle.hasMode) { if (toggle.isSysDarkPrefer) { if (toggle.isLightMode) { toggle.clearMode(); } else { toggle.setLight(); } } else { if (toggle.isDarkMode) { toggle.clearMode(); } else { toggle.setDark(); } } } else { if (toggle.isSysDarkPrefer) { toggle.setLight(); } else { toggle.setDark(); } } toggle.notify(); } /* flipMode() */ </script><body data-spy="scroll" data-target="#toc" data-topbar-visible="true"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src=" /assets/img/sample/logo.jpg " alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/">민석강</a></div><div class="site-subtitle font-italic">3년차 개발자. 40살에 100억벌고 은퇴</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tag ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info-circle ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center align-items-center"> <button class="mode-toggle btn" aria-label="Switch Mode"> <i class="fas fa-adjust"></i> </button> <span class="icon-border"></span> <a href="https://github.com/kkminseok" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github"></i> </a> <a href="https://twitter.com/none" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['minseok19950727','gmail.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Home </a> </span> <span>2번 읽는 Modern Java In Action - Chapter05 스트림활용(1)</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="Search..."> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="core-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>2번 읽는 Modern Java In Action - Chapter05 스트림활용(1)</h1><div class="post-meta text-muted"><div> By <em> <a href="https://github.com/kkminseok">minseok</a> </em></div><div class="d-flex"><div> <span> Posted <em class="timeago" data-ts="1681660920" data-toggle="tooltip" data-placement="bottom" data-tooltip-df="llll" > 2023-04-17 </em> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="1689 words"> <em>9 min</em> read</span></div></div></div><div class="post-content"><h2 id="-개요"><span class="mr-2">🔅 개요</span><a href="#-개요" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2></h2><p>스트림 API가 지원하는 다양한 연산들을 다뤄본다고 한다.</p><p>참고로 여기서 나오는 <strong>menu</strong>리스트들은</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="nd">@BeforeEach</span>
+<span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">menu</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"chicken"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">200</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">MEAT</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"pork Chop"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">400</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">FISH</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"pork Loin"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">230</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">FISH</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"salad"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">199</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">)</span>
+    <span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p>이렇게 구현되어있다.</p><h2 id="-필터링"><span class="mr-2">🔅 필터링</span><a href="#-필터링" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2></h2><ul><li><code class="language-plaintext highlighter-rouge">filter</code>메서드는 <strong>프레디케이트</strong>를 인수로 받아서 해당 프레디케이트와 일치하는 모든 요소를 포함하는 스트림을 반환한다.</ul><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"프리디게이트로 필터링"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testPredicateFilter</span><span class="o">(){</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">vegetarianMenu</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="nl">Dish:</span><span class="o">:</span><span class="n">isVegetarian</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+    <span class="c1">//salad</span>
+    <span class="n">vegetarianMenu</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><ul><li><code class="language-plaintext highlighter-rouge">distinct()</code>를 통한 중복제거도 가능하다.</ul><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"프리디게이트로 필터링 - 중복제거"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testPredicateDistinctFilter</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">4</span><span class="o">);</span>
+    <span class="c1">//중복제거</span>
+    <span class="c1">//2, 4</span>
+    <span class="n">numbers</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">i</span> <span class="o">-&gt;</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">distinct</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">())</span>
+            <span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h2 id="-스트림-슬라이싱"><span class="mr-2">🔅 스트림 슬라이싱</span><a href="#-스트림-슬라이싱" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2></h2><p>만약 칼로리순으로 정렬된 경우이고, 320칼로리 이하의 요리를 선택해야한다면 어떻게 할 수 있을까</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">sortedMenu</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+                <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"fruit"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">120</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">),</span>
+                <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"prwans"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">300</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">FISH</span><span class="o">),</span>
+                <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"rice"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">350</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">),</span>
+                <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"chicken"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">400</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">MEAT</span><span class="o">),</span>
+                <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"french fries"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">530</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">)</span>
+        <span class="o">);</span>
+
+<span class="n">sortedMenu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">dish</span> <span class="o">-&gt;</span> <span class="n">dish</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">320</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+</pre></table></code></div></div><p>이런식으로 할 수 있지만, 정렬이 되었음에도 불구하고 4번째인 400칼로리도 <code class="language-plaintext highlighter-rouge">filter</code>가 적용될 것이고 5번째인 800칼로리도 마찬가지로 돌것이다. 그렇게 무의미하게 필터가 계속 작용될 것이다.</p><p><strong>Java9</strong>버전에서는 <code class="language-plaintext highlighter-rouge">taskWhile()</code>를 통해 정렬된 값에 대한 필터를 적용하여 범위를 벗어난값이 나타나면 연산을 종료시킬 수 있다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">sortedMenu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">takeWhile</span><span class="o">(</span><span class="n">dish</span> <span class="o">-&gt;</span> <span class="n">dish</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">320</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+<span class="c1">//fruit, prawns</span>
+<span class="n">result</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+</pre></table></code></div></div><p>이런식으로 해결할 수 있다.</p><p>반대로 320칼로 이상의 요소를 선택하려면 어떻게 해야할까?</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">sortedMenu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">dropWhile</span><span class="o">(</span><span class="n">dish</span> <span class="o">-&gt;</span> <span class="n">dish</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">320</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+
+<span class="c1">//rice, chicken, french fries</span>
+<span class="n">result</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">dropWhile</code>은 프레디케이트가 처음으로 거짓이 되는 지점까지 발견된 요소를 버린다. 그리고 거짓이 되면 그 지점에서 작업을 중단하고 남은 모든 요소를 반환한다.</p><p><code class="language-plaintext highlighter-rouge">limit(n)</code>를 이용해 스트림 최대 요소 n개를 반환할 수 있다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"limit를 이용한 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testLimit</span><span class="o">(){</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">sortedMenu</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"fruit"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">120</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"prwans"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">500</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">FISH</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"rice"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">350</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"chicken"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">400</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">MEAT</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"french fries"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">530</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">)</span>
+    <span class="o">);</span>
+
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">dishes</span> <span class="o">=</span> <span class="n">sortedMenu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">dish</span> <span class="o">-&gt;</span> <span class="n">dish</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">limit</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+    
+    <span class="c1">// prwans</span>
+    <span class="c1">// rice</span>
+    <span class="c1">// chicken</span>
+    <span class="n">dishes</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">skip(n)</code>을 통하여 스트림 요소 n개를 건너 뛸 수 있다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="nd">@BeforeEach</span>
+<span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">menu</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"chicken"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">200</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">MEAT</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"pork Chop"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">400</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">FISH</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"pork Loin"</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="mi">230</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">FISH</span><span class="o">),</span>
+            <span class="k">new</span> <span class="nf">Dish</span><span class="o">(</span><span class="s">"salad"</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">199</span><span class="o">,</span> <span class="nc">Dish</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">OTHER</span><span class="o">)</span>
+    <span class="o">);</span>
+<span class="o">}</span>
+
+<span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"skip을 이용한 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testSkip</span><span class="o">(){</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">dishes</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">d</span> <span class="o">-&gt;</span> <span class="n">d</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">300</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">skip</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+    <span class="c1">//salad</span>
+    <span class="n">dishes</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h2 id="-매핑"><span class="mr-2">🔅 매핑</span><a href="#-매핑" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2></h2><p>특정객체의 특정 데이터를 선택하는 작업이 필요할 때도 있을 것이다. 이는 <code class="language-plaintext highlighter-rouge">map</code>과 <code class="language-plaintext highlighter-rouge">flatMap</code>메서드가 제공한다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"map 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testMap</span><span class="o">(){</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">dishNames</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="nl">Dish:</span><span class="o">:</span><span class="n">getName</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+    <span class="c1">// chicken</span>
+    <span class="c1">// pork Chop</span>
+    <span class="c1">// pork Loin</span>
+    <span class="c1">// salad</span>
+    <span class="n">dishNames</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">Dish::getName</code>은 문자열을 반환하므로 map 메서드의 출력 스트림은 **Stream<String>** 형식을 갖는다.</String></p><p>만약 각 요리명의 길이를 알고 싶으면 어떻게 할까? <code class="language-plaintext highlighter-rouge">map</code>을 중첩해서 사용하면 된다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"map 중첩 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testMapDuplicate</span><span class="o">(){</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">dishNameLengths</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="nl">Dish:</span><span class="o">:</span><span class="n">getName</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="nl">String:</span><span class="o">:</span><span class="n">length</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+    <span class="c1">//7 9 9 5 </span>
+    <span class="n">dishNameLengths</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h2 id="-스트림-평면화"><span class="mr-2">🔅 스트림 평면화</span><a href="#-스트림-평면화" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2></h2><p>책에서 <code class="language-plaintext highlighter-rouge">flatMap</code>은 배열을 스트림이 아니라 스트림의 콘텐츠로 매핑한다는데, 이해가 잘 되지 않는다.</p><p>만약 [“Hello”, “World”]를 [“H”,”e”,”l”,”l”,”o”,”W”,”o”,”r”,”l”,”d”]로 쪼개고 싶다고 하자.</p><p>그러면</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">"Hello"</span><span class="o">,</span> <span class="s">"World"</span><span class="o">);</span>
+
+        <span class="c1">//평면화 전</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">[]&gt;</span> <span class="n">mapResult</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">word</span> <span class="o">-&gt;</span> <span class="n">word</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">""</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+</pre></table></code></div></div><p>결과는 [[“H”,”e”,”l”,”l”,”o”],[“W”,”o”,”r”,”l”,”d”]] 로 나올 것이다.</p><p>우리가 원하는 건 2개의 배열에 결과를 담는게 아니다.</p><p><code class="language-plaintext highlighter-rouge">flatMap</code>은 이러한 작업을 도와주는데, 스트림을 1차원 평면화 시킨다고 보면된다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"스트림 평면화"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testMapDistinct</span><span class="o">(){</span>
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">"Hello"</span><span class="o">,</span> <span class="s">"World"</span><span class="o">);</span>
+
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">word</span> <span class="o">-&gt;</span> <span class="n">word</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">""</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="nl">Arrays:</span><span class="o">:</span><span class="n">stream</span><span class="o">)</span> <span class="c1">// 배열을 스트림으로 변환</span>
+        <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="nc">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+
+<span class="n">result</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h2 id="-검색과-매칭"><span class="mr-2">🔅 검색과 매칭</span><a href="#-검색과-매칭" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2></h2><p>검색하는데 용이한 메서드들을 제공한다는 것이다.</p><h3 id="anymatch"><span class="mr-2">anyMatch</span><a href="#anymatch" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3></h3><p>프레디케이트가 주어진 스트림에서 적어도 한 요소와 일치하는지 확인할 때 사용한다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"anyMatch 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testAnyMatch</span><span class="o">(){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">anyMatch</span><span class="o">(</span><span class="nl">Dish:</span><span class="o">:</span><span class="n">isVegetarian</span><span class="o">)){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"is vegetarian"</span><span class="o">);</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h3 id="allmatch"><span class="mr-2">allMatch</span><a href="#allmatch" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3></h3><p>스트림의 모든 요소가 주어진 프레디케이트와 일치하는지를 검사한다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"allMatch 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testAllMatch</span><span class="o">(){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">allMatch</span><span class="o">(</span><span class="n">dish</span> <span class="o">-&gt;</span> <span class="n">dish</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="o">)){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"모든 음식의 칼로리가 1000보다 적습니다."</span><span class="o">);</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h3 id="nonematch"><span class="mr-2">noneMatch</span><a href="#nonematch" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3></h3><p>스트림의 모든 요소가 주어진 프레디케이트와 일치하지 않는지를 검사한다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"noneMatch 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testNoneMatch</span><span class="o">(){</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">noneMatch</span><span class="o">(</span><span class="n">dish</span> <span class="o">-&gt;</span> <span class="n">dish</span><span class="o">.</span><span class="na">getCalories</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="o">)){</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"모든 음식의 칼로리가 1000을 초과하지 않습니다."</span><span class="o">);</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</pre></table></code></div></div><h3 id="findany"><span class="mr-2">findAny</span><a href="#findany" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3></h3><p>스트림에서 임의의 요소를 반환한다. 예제에서는 자료구조의 양이 적어서 매 번 임의의 값이 나오지는 않는다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"findAny 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testFindAny</span><span class="o">(){</span>
+        <span class="nc">Optional</span><span class="o">&lt;</span><span class="nc">Dish</span><span class="o">&gt;</span> <span class="n">dish</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="nl">Dish:</span><span class="o">:</span><span class="n">isVegetarian</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">findAny</span><span class="o">();</span>
+        <span class="c1">//Optional[salad]</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">dish</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></table></code></div></div><blockquote class="prompt-info"><div><p>Optional에 관한 내용은 10챕터에 자세히 나온다니, 생략하도록 하겠다. 간단히 <code class="language-plaintext highlighter-rouge">null</code>을 처리하기 위해 등장한 클래스다.</p></div></blockquote><h3 id="findfirst"><span class="mr-2">findFirst</span><a href="#findfirst" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h3></h3><p>스트림에서 첫 번째 요소를 찾기위해 사용한다.</p><div class="language-java highlighter-rouge"><div class="code-header"> <span data-label-text="Java"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="Copied!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="nd">@Test</span>
+<span class="nd">@DisplayName</span><span class="o">(</span><span class="s">"findFirst 테스트"</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">testFindFirst</span><span class="o">(){</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">numbers</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">);</span>
+
+        <span class="n">numbers</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">n</span> <span class="o">-&gt;</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">n</span> <span class="o">-&gt;</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">findFirst</span><span class="o">()</span>
+                <span class="c1">//9출력</span>
+                <span class="o">.</span><span class="na">ifPresent</span><span class="o">(</span><span class="n">i</span> <span class="o">-&gt;</span> <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+<span class="o">}</span>
+</pre></table></code></div></div><blockquote class="prompt-tip"><div><p>병렬 실행에서는 첫 번째 요소를 반환하는 <code class="language-plaintext highlighter-rouge">findFirst</code>를 제대로 이용하기 어렵다. 때문에 <code class="language-plaintext highlighter-rouge">findAny</code>를 사용하는게 좋다.</p></div></blockquote><p>내용이 길어서 2개로 나눠서 작성하게 되었다.</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/java/'>Java</a>, <a href='/categories/modern-java-in-action/'>Modern Java In Action</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/modern-java-in-action/" class="post-tag no-text-decoration" >Modern Java In Action</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/"> CC BY 4.0 </a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=2번 읽는 Modern Java In Action - Chapter05 스트림활용(1) - 민석강&amp;url=https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=2번 읽는 Modern Java In Action - Chapter05 스트림활용(1) - 민석강&amp;u=https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://t.me/share/url?url=https://kkminseok.github.io/posts/2023-04-17-Modern-Java-In-action/&amp;text=2번 읽는 Modern Java In Action - Chapter05 스트림활용(1) - 민석강" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i id="copy-link" class="fa-fw fas fa-link small" data-toggle="tooltip" data-placement="top" title="Copy link" data-title-succeed="Link copied successfully!"> </i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted"><div class="access"><div id="access-lastmod" class="post"><div class="panel-heading">Recently Updated</div><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/2023-03-06-dnd/">DND 8기 활동 후기</a><li><a href="/posts/2024-03-31-fastapi/">fastapi Swagger Response 분리하기</a><li><a href="/posts/2023-05-19-think01/">5월19일시점 개발하면서 고민한 것들 + 도커관련 이슈</a><li><a href="/posts/2023-05-02-Modern-Java-In-action/">2번 읽는 Modern Java In Action - Chapter06 스트림으로 데이터 수집</a><li><a href="/posts/2023-03-18-Modern-Java-In-Action/">2번 읽는 Modern Java In Action - Chapter01 기초</a></ul></div><div id="access-tags"><div class="panel-heading">Trending Tags</div><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/leetcode/">leetcode</a> <a class="post-tag" href="/tags/programmers/">Programmers</a> <a class="post-tag" href="/tags/baekjoon/">Baekjoon</a> <a class="post-tag" href="/tags/algorithmstudy/">AlgorithmStudy</a> <a class="post-tag" href="/tags/top100like/">Top100Like</a> <a class="post-tag" href="/tags/spring/">Spring</a> <a class="post-tag" href="/tags/fastapi/">FastAPI</a> <a class="post-tag" href="/tags/economy/">Economy</a> <a class="post-tag" href="/tags/dp/">DP</a> <a class="post-tag" href="/tags/top100interview/">Top100Interview</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"><div class="panel-heading pl-3 pt-2 mb-2">Contents</div><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="tail-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/2023-03-27-Modern-Java-In-action/"><div class="card-body"> <em class="timeago small" data-ts="1679846520" > 2023-03-27 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>2번 읽는 Modern Java In Action - Chapter02 동적 파라미터화 코드 전달하기</h3><div class="text-muted small"><p> 동적 파라미터화란 말 그대로 메소드의 파라미터를 동적으로 정해줘서 넘겨주는 것을 말한다. 그래서 자주 바뀌는 요구사항에 효과적으로 대응이 가능하다고 한다. 🔅 예제 책에서는 사과 파는것에 대한 예제를 들고 있다. 만약 빨간사과, 녹색 사과가 있고 녹색사과만 필터링하고 싶으면 어떻게 할까? @Test void 녹색사과만필터(){ List...</p></div></div></a></div><div class="card"> <a href="/posts/2023-04-05-Modern-Java-In-action/"><div class="card-body"> <em class="timeago small" data-ts="1680706920" > 2023-04-06 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>2번 읽는 Modern Java In Action - Chapter03 람다 표현식</h3><div class="text-muted small"><p> 3장은 람다에 대한 내용이다. 전에 동작 파라미터화를 통해 재사용성을 늘릴 수 있었고, 익명 클래스를 통해 로직을 더 줄일 수 있었다. 하지만 코드 자체가 깔끔하지 않았고, 이를 해결하기 위한 자바8에서 새로나온 람다에 대해서 학습한다. 🔅 람다의 특징 익명: 보통의 메서드와 달리 이름이 없어서 익명의 특성을 가진다. 함수: 특정 클래...</p></div></div></a></div><div class="card"> <a href="/posts/2023-04-13-Modern-Java-In-action/"><div class="card-body"> <em class="timeago small" data-ts="1681398120" > 2023-04-14 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>2번 읽는 Modern Java In Action - Chapter04 스트림</h3><div class="text-muted small"><p> 🔅 스트림 기존 자바7코드에서는 저칼로리의 요리명을 반환하고, 칼로리를 기준으로 요리를 정렬하려면 어떤식으로 코드를 작성했는가 //Dish.java public class Dish { private String name; private int calories; public Dish(String name, int calorie...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/2023-04-13-Modern-Java-In-action/" class="btn btn-outline-primary" prompt="Older"><p>2번 읽는 Modern Java In Action - Chapter04 스트림</p></a> <a href="/posts/2023-04-25-Modern-Java-In-action/" class="btn btn-outline-primary" prompt="Newer"><p>2번 읽는 Modern Java In Action - Chapter05 스트림활용(2)</p></a></div><script type="text/javascript"> $(function () { const origin = "https://giscus.app"; const iframe = "iframe.giscus-frame"; const lightTheme = "light"; const darkTheme = "dark_dimmed"; let initTheme = lightTheme; if ($("html[data-mode=dark]").length > 0 || ($("html[data-mode]").length == 0 && window.matchMedia("(prefers-color-scheme: dark)").matches)) { initTheme = darkTheme; } let giscusAttributes = { "src": "https://giscus.app/client.js", "data-repo": "kkminseok/kkminseok.github.io", "data-repo-id": "MDEwOlJlcG9zaXRvcnkzNDUwNzI2OTM=", "data-category": "Announcements", "data-category-id": "DIC_kwDOFJFkNc4CO5-J", "data-mapping": "pathname", "data-reactions-enabled": "1", "data-emit-metadata": "0", "data-theme": initTheme, "data-input-position": "bottom", "data-lang": "en", "crossorigin": "anonymous", "async": "" }; let giscusScript = document.createElement("script"); Object.entries(giscusAttributes).forEach(([key, value]) => giscusScript.setAttribute(key, value)); document.getElementById("tail-wrapper").appendChild(giscusScript); addEventListener("message", (event) => { if (event.source === window && event.data && event.data.direction === ModeToggle.ID) { /* global theme mode changed */ const mode = event.data.message; const theme = (mode === ModeToggle.DARK_MODE ? darkTheme : lightTheme); const message = { setConfig: { theme: theme } }; const giscus = document.querySelector(iframe).contentWindow; giscus.postMessage({ giscus: message }, origin); } }); }); </script></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center text-muted"><div class="footer-left"><p class="mb-0"> © 2024 <a href="https://twitter.com/none">kang minseok</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><div id="access-tags"><div class="panel-heading">Trending Tags</div><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/leetcode/">leetcode</a> <a class="post-tag" href="/tags/programmers/">Programmers</a> <a class="post-tag" href="/tags/baekjoon/">Baekjoon</a> <a class="post-tag" href="/tags/algorithmstudy/">AlgorithmStudy</a> <a class="post-tag" href="/tags/top100like/">Top100Like</a> <a class="post-tag" href="/tags/spring/">Spring</a> <a class="post-tag" href="/tags/fastapi/">FastAPI</a> <a class="post-tag" href="/tags/economy/">Economy</a> <a class="post-tag" href="/tags/dp/">DP</a> <a class="post-tag" href="/tags/top100interview/">Top100Interview</a></div></div></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><script src="https://cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js"></script> <script> $(function() { function updateMermaid(event) { if (event.source === window && event.data && event.data.direction === ModeToggle.ID) { const mode = event.data.message; if (typeof mermaid === "undefined") { return; } let expectedTheme = (mode === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* Re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } let initTheme = "default"; if ($("html[data-mode=dark]").length > 0 || ($("html[data-mode]").length == 0 && window.matchMedia("(prefers-color-scheme: dark)").matches ) ) { initTheme = "dark"; } let mermaidConf = { theme: initTheme /* <default|dark|forest|neutral> */ }; /* Markdown converts to HTML */ $("pre").has("code.language-mermaid").each(function() { let svgCode = $(this).children().html(); $(this).addClass("unloaded"); $(this).after(`<div class=\"mermaid\">${svgCode}</div>`); }); mermaid.initialize(mermaidConf); window.addEventListener("message", updateMermaid); }); </script><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.10.0/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script> <script src="https://cdn.jsdelivr.net/combine/npm/magnific-popup@1/dist/jquery.magnific-popup.min.js,npm/lozad/dist/lozad.min.js,npm/clipboard@2/dist/clipboard.min.js"></script> <script src="https://cdn.jsdelivr.net/combine/npm/dayjs@1/dayjs.min.js,npm/dayjs@1/locale/ko.min.js,npm/dayjs@1/plugin/relativeTime.min.js,npm/dayjs@1/plugin/localizedFormat.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script> /* see: <https://docs.mathjax.org/en/latest/options/input/tex.html#tex-options> */ MathJax = { tex: { inlineMath: [ /* start/end delimiter pairs for in-line math */ ['$','$'], ['\\(','\\)'] ], displayMath: [ /* start/end delimiter pairs for display math */ ['$$', '$$'], ['\\[', '\\]'] ] } }; </script> <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"> </script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script> <script defer src="/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id=G-KMXXJ0D586"></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-KMXXJ0D586'); }); </script>
