@@ -6,7 +6,7 @@ categories: [Blogging,Tutorial]
 tags: [start git blog]
 math: true
 mermaid: true
-image: /assets/img/sample/devices-mockup.png
+image: 
 comments : true
 ---
 
