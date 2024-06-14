@@ -8,8 +8,6 @@ categories: [Java,Modern Java In Action]
 tags: [Modern Java In Action]
 math: true
 mermaid: true
-image: 
-    path: 
 comments: true
 ---
 

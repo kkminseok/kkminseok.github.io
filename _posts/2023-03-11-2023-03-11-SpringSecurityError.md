@@ -8,8 +8,6 @@ categories: [Java,Spring]
 tags: [SpringSecurity]
 math: true
 mermaid: true
-image: 
-    path: 
 comments: true
 ---
 
