@@ -1,8 +1,6 @@
 ---
 title: 2번 읽는 Modern Java In Action - Chapter05 스트림활용(2)
-author: 
-    name: minseok
-    link: https://github.com/kkminseok
+author: minseok
 date: 2023-04-25 00:02:00 +0800
 categories: [Java,Modern Java In Action]
 tags: [Modern Java In Action]

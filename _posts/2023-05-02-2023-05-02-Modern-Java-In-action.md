@@ -1,8 +1,6 @@
 ---
 title: 2번 읽는 Modern Java In Action - Chapter06 스트림으로 데이터 수집
-author: 
-    name: minseok
-    link: https://github.com/kkminseok
+author: minseok
 date: 2022-05-02 00:02:00 +0800
 categories: [Java,Modern Java In Action]
 tags: [Modern Java In Action]

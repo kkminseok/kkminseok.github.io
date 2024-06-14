@@ -1,8 +1,6 @@
 ---
 title: aws를 이용해서 음원 스트리밍 파일 서버(?) 구축하기
-author: 
-    name: minseok
-    link: https://github.com/kkminseok
+author: minseok
 date: 2023-07-08 00:02:00 +0800
 categories: [Java,Spring]
 tags: [Troubleshooting]
