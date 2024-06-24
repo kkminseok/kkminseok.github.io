@@ -3,14 +3,13 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-> 문의사항은 `minseok19950727@gmail.com`로 주세요. dnd 8기 활동 후 개발 운영진 소속으로 활동 중입니다.
+> 문의사항은 `minseok19950727@gmail.com`로 주세요. 
 {: .prompt-tip }
 
-> CS관련 지식 저장소가 있습니다. [저장소](https://github.com/kkminseok/TIL_Interview) 많은 관심 부탁드립니다.
-{: .prompt-tip}
+> DND 8기 활동 및 개발 운영진으로 활동
+{: .prompt-info}
 
-> 현재는 [리얼월드](https://kkminseok.github.io/categories/real-world-spring/)프로젝트 [야근은 병이다.](https://glorious-double-0a3.notion.site/07cad79efc774ef0bed1c0a483701a97)프로젝트를 진행하였습니다.
-현재는 [깃허브 트래픽 관리](https://github.com/kkminseok/my-Repository-Traffic)프로젝트를 진행하고 있습니다.
+> Cookinary, BodyProfileManager, Murun 등 끊임없이 개발 프로젝트를 진행중에 있습니다.[확인](https://github.com/orgs/saenggod/repositories)
 {: .prompt-info}
 
 > [리얼월드](https://kkminseok.github.io/categories/real-world-spring/) 프로젝트는 공식 홈페이지에 등록된 이력이 있습니다.[확인](https://www.realworld.how/)
@@ -70,3 +69,5 @@ order: 4
 - 에이트 / 
 
 - 노후를 위해 집을 이용하라 / 2023.05.07
+
+- 레버리지[저) 롭무어] / 2024.06.24
