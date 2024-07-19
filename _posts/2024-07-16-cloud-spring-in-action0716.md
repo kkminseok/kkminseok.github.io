@@ -1,7 +1,7 @@
 ---
-title: 클라우드 네이티브 인 액션(4) - 스프링 데이터 관련
+title: 클라우드 네이티브 인 액션(5) - 컨테이너화
 author: minseok
-date: 2024-07-15 00:02:00 +0800
+date: 2024-07-16 00:02:00 +0800
 categories: [Spring]
 tags: [Spring]
 math: true
@@ -16,157 +16,237 @@ comments: true
 [깃 레포지토리](https://github.com/kkminseok/spring-cloud-native-example)
 {: .prompt-info}
 
-저번 포스팅에서는 스프링에서 다루는 설정을 알아보았다.
+해당 장에서는 작성한 애플리케이션을 컨테이너화하여 실행하는 방법에 대해 배운다.
 
-동적으로 설정을 추가할수도, 뺼수도 있었고 깃허브를 통해 버전관리도 할 수 있었다.
+## □ 스프링 애플리케이션 도커 컨테이너화
 
-해당장에서는 애플리케이션이 종료될 때 저장해야하는 값들을 어떻게 저장할 것인가에 대한 이야기인 듯하다.
+도커 네트워크를 통해 postgresql 컨테이너와 Spring boot Application을 연결해야하므로 도커 네트워크를 만들어주자.
 
-## □ Docker PostgreSQL실행
+```sh
+> docker network create catalog-network
+fde43c98c153f3dd108e8663baca1c9a0e708d5a32531ab56491a1738576db66
+```
 
-책에서는 PostgreSQL에 데이터를 저장할 것인데, 확장성 관계형 비관계형을 지원, 오픈소스 등의 장점 등을 고려하여 선택한 듯 하다.
+이후, postgresql을 도커네트워크에 연결해서 다시 띄우도록 한다.
 
 ```sh
 docker run -d \
   --name polar-postgres \
+  --net catalog-network \
   -e POSTGRES_USER=user \
   -e POSTGRES_PASSWORD=password \
   -e POSTGRES_DB=polardb_catalog \
   -p 15432:5432 \
-  postgres:14.4
+  postgres:latest
 ```
 
-책에서는 호스트의 15432과 컨테이너의 5432의 포트를 바인딩하였지만 나는 이미 사용중인 포트라서 15432로 매핑해주었다.
+이후 스프링 프로젝트 루트 디렉터리에 터미널을 열어서 도커파일을 작성해준다.
 
-도커 볼륨을 사용하지 않아서 이는 컨테이너가 종료될때마다 데이터들이 싹 날라가겠지만 아직까지는 데이터를 지속적으로 저장할 필요가 없다고 판단하였나보다.
+```docker
+FROM eclipse-temurin:17
+WORKDIR workspace
+LABEL authors="kms"
 
-
-## □ JDBC로 연결
-
-Spring 모듈에서 PostgreSQL에 연결할 수 있도록 드라이버를 명시적으로 설정해줘야하고, 스프링 데이터 관련 라이브러리도 추가해줘야한다.
-
-```gradle
-//build.gradle
-implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-//driver
-runtimeOnly 'org.postgresql:postgresql'
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} catalog-service.jar
+ENTRYPOINT ["java", "-jar", "catalog-service.jar"]
 ```
 
+jre을 미리제공하는 이미지를 베이스로 하였으며, workspace가 실제 스프링부트가 띄워지는 디렉터리가 될 것이다.
 
-이후 `properties`에 계정 정보를 입력해준다.
+jar파일은 현재상태에서 미리 제공되어야하므로, build를 실행해준다.
 
-```properties
-spring.datasource.username=user
-spring.datasource.password=password
-spring.datasource.url=jdbc:postgresql://localhost:15432/polardb_catalog
-spring.datasource.hikari.connection-timeout=2000
-spring.datasource.hikari.maximum-pool-size=5
+```sh
+ ./gradlew clean bootJar
 ```
 
-데이터 베이스 연결을 열고 닫는게 리소스적 부담이 있으므로 이를 해결할 수 있어야한다.
+이후 컨테이너 이미지를 만들어 준다.
 
-- spring.datasource.hikari.connection-timeout: 풀에서 객체 연결을 기다리는 최대 시간
-- spring.datasource.hikari.maximum-pool-size: 풀의 최대 크기
+```sh
+docker build -t catalog-service .
+```
 
-이 옵션을 통해 연결풀의 크기를 정하고, 타임아웃을 설정하여 복원력과 성능을 향상시킨다.
+버전을 지정하지 않아서 태그가 latest로 생성될 것이다.
 
-보통 도메인 엔티티와 지속성 엔티티 2개를 만드는데 사이즈가 크지 않으므로 기존의 `Book`레코드를 지속성 엔티티로 변경 작성할 예정이다.
+이후 이미지를 컨테이너로 띄워준다.
 
-지속성 엔티티는 각 객체를 식별할 수 있는 키가 있어야하며, 이 키는 코드단에서는 필드로 변환되고 DB에서는 기본키로 변환된다. 해당 필드에는 `@Id`애노테이션이 붙는다. 
+```sh
+docker run -d \
+--name catalog-service \
+--net catalog-network \
+-p 9001:9001 \
+-e SPRING_DATASOURCE_URL=jdbc:postgresql://polar-postgres:5432/polardb_catalog \
+-e SPRING_PROFILES_ACTIVE=testdata \
+catalog-service
+```
 
-동일한 엔티티에 여러 사용자가 수정작업을 거칠 때 Spring DATA JPA에서 제공하는 **낙관적 잠금**을 통하여 이를 보호할 것이다.
+네트워크를 DB와 공유해야하기에 환경변수로 데이터베이스 url을 덮어 씌워주고 testdata프로파일을 활성화하여 테스트 데이터를 넣도록 한다.
 
-여기서 제공하는 낙관적 잠금은 버전을 기반으로 감지를 하는데 절차는 다음과 같다.
+이후 9001포트에 GET요청을 보내 테스트를 해보면
 
-1. 사용자1이 업데이트를 시도 (이때의 버전 0)
-2. 업데이트 되기 전 사용자2가 업데이트 시도(이때의 버전 0)
-3. 사용자1의 업데이트가 완료 (이때의 버전 1)
-4. 사용자2가 업데이트 완료 후 저장 하려는데 받아왔던 객체의 버전이 다름(최초 0 -> 1로 변경)
+```sh
+> http :9001/books
+HTTP/1.1 200
+Connection: keep-alive
+Content-Type: application/json
+Date: Thu, 18 Jul 2024 12:54:21 GMT
+Keep-Alive: timeout=15
+Transfer-Encoding: chunked
 
-## □ 지속성 엔티티 생성 및 낙관적 잠금 적용
+[
+    {
+        "author": "Lyra",
+        "createdDate": "2024-07-18T12:54:15.781522Z",
+        "id": 3,
+        "isbn": "1234567891",
+        "lastModifiedDate": "2024-07-18T12:54:15.781522Z",
+        "price": 9.91,
+        "publisher": "kms",
+        "title": "Test",
+        "version": 1
+    },
+    {
+        "author": "Polar",
+        "createdDate": "2024-07-18T12:54:15.787297Z",
+        "id": 4,
+        "isbn": "1234567892",
+        "lastModifiedDate": "2024-07-18T12:54:15.787297Z",
+        "price": 9.94,
+        "publisher": "kms",
+        "title": "Test book",
+        "version": 1
+    }
+]
 
-기존에 사용하던 Book 레코드에 @Id, @Version를 달 필드를 추가한다.
+```
+
+아주 잘 호출되는걸 볼 수 있다.
+
+하지만 매 번 도커 CLI를 통해서 컨테이너를 띄우는건 휴먼 이슈도 있을것이고 불편하다.
+
+도커 컴포즈를 향후 사용할 것이지만 그 전에 프러덕션 환경을 위한 컨테이너 이미지 빌드라고, 스프링 부트에서 지원하는 **계층화된 JAR**을 사용해서 이미지를 보다 효율적으로 제작할 수 있는 기능이 있다.
+
+계층화된 JAR가 등장한 이유는 간단하다.
+
+성능이다.
+
+현재는 빌드된 파일을 이미지 레이어에 추가하여 빌드를 진행하고 있는데, 예를 들어서 컨트롤러에서 코드 하나만 수정해도 전체 빌드를 다시해야하는 불편함이 있다.
+
+계층화된 JAR는 도커 이미지와 비슷하게 여러 레이어로 만들어지는데, 구조는 다음과 같다.
+
+- 의존성 계층: 프로젝트에 추가된 모든 주요 의존성
+- 스프링 부트 로더: 스프링 부트 로더 컴포넌트가 사용하는 클래스
+- 스냅숏 의존성 계층: 모든 스냅숏 의존성
+- 애플리케이션 계층: 애플리케이션 클래스 및 리소스
+
+이렇게 이루어져있는데, 위의 예시와 같이 컨트롤러만 수정되는 경우는 애플리케이션 계층만 작성하면 된다.
+
+이 전략을 사용하기 위해서 일단 Dockerfile을 수정한다.
+
+## □ 계층화된 JAR Dockerfile작성
+
+```docker
+FROM eclipse-temurin:17 AS builder
+WORKDIR workspace
+LABEL authors="kms"
+
+ARG JAR_FILE=build/libs/*.jar
+COPY ${JAR_FILE} catalog-service.jar
+RUN java -Djarmode=layertools -jar catalog-service.jar extract
+
+FROM eclipse-temurin:17
+RUN useradd spring
+USER spring
+WORKDIR workspace
+COPY --from=builder workspace/dependencies/ ./
+COPY --from=builder workspace/spring-boot-loader/ ./
+COPY --from=builder workspace/snapshot-dependencies/ ./
+COPY --from=builder workspace/application/ ./
+
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+```
+
+JAR파일에서 계층을 추출하고, 각 계층을 별도의 이미지 레이어로 배치한다.  이로인해서 최종 컨테이너 이미지가 생성된다.
+
+여기서 추가된 다른 부분은 보안에 관련된 부분인데, docker 컨테이너는 루트 사용자로 실행되기에 최소권한의 원칙에 따라 필요 이상의 권한을 갖지 않은 사용자를 만들어서 해당 사용자가 도커파일에 정의된 엔트리포인트를 실행하게끔 했다.
+
+해당 도커파일을 기준으로 빌드를 실행해준다.
+
+```sh
+ > docker build -t catalog-service .
+[+] Building 3.5s (15/15) FINISHED                                                                                                                                                         docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                                                                                                                                       0.0s
+ => => transferring dockerfile: 624B                                                                                                                                                                       0.0s
+ => [internal] load metadata for docker.io/library/eclipse-temurin:17                                                                                                                                      2.7s
+ => [internal] load .dockerignore                                                                                                                                                                          0.0s
+ => => transferring context: 2B                                                                                                                                                                            0.0s
+ => [internal] load build context                                                                                                                                                                          0.0s
+ => => transferring context: 235B                                                                                                                                                                          0.0s
+ => CACHED [stage-1 1/7] FROM docker.io/library/eclipse-temurin:17@sha256:39fc8112490b67760d2dd3c8d73176f0ed323e99e7a7f09449d44fb8d1b350cc                                                                 0.0s
+ => [stage-1 2/7] RUN useradd spring                                                                                                                                                                       0.2s
+ => CACHED [builder 2/4] WORKDIR workspace                                                                                                                                                                 0.0s
+ => CACHED [builder 3/4] COPY build/libs/*.jar catalog-service.jar                                                                                                                                         0.0s
+ => [builder 4/4] RUN java -Djarmode=layertools -jar catalog-service.jar extract                                                                                                                           0.6s
+ => [stage-1 3/7] WORKDIR workspace                                                                                                                                                                        0.0s
+ => [stage-1 4/7] COPY --from=builder workspace/dependencies/ ./                                                                                                                                           0.1s
+ => [stage-1 5/7] COPY --from=builder workspace/spring-boot-loader/ ./                                                                                                                                     0.0s
+ => [stage-1 6/7] COPY --from=builder workspace/snapshot-dependencies/ ./                                                                                                                                  0.0s
+ => [stage-1 7/7] COPY --from=builder workspace/application/ ./                                                                                                                                            0.0s
+ => exporting to image                                                                                                                                                                                     0.1s
+ => => exporting layers                                                                                                                                                                                    0.1s
+ => => writing image sha256:9e4bff175df64e28ecd58accc378f1de7dc20908efb5ac2857a9afb19584976d                                                                                                               0.0s
+ => => naming to docker.io/library/catalog-service                                                                                                                                                         0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/l5b5n2419jqzgb1cvoisx3wta
+
+What's next:
+    View a summary of image vulnerabilities and recommendations → docker scout quickview 
+
+```
+
+참고로 앞에서 이야기한 `grype`를 가지고 취약점 검사도 할 수 있다.
+
+`brew install grype`로 grype를 설치하여 취약성 검사를 실행해본다.
+
+```sh
+➜  catalog-service git:(main) ✗ grype catalog-service
+ ⠋ Vulnerability DB                ━━━━━━━━━━━━━━━━━━━━  [79 MB / 176 MB]  
+ ✔ Loaded image                                                                                                                                                                         catalog-service:latest
+ ✔ Parsed image                                                                                                                        sha256:9e4bff175df64e28ecd58accc378f1de7dc20908efb5ac2857a9afb19584976d
+ ✔ Cataloged contents                                                                                                                         dbf89ba6aad1148a79f7889166105cdac426497571799ae4227742c542a72247
+   ├── ✔ Packages                        [199 packages]  
+   ├── ✔ File digests                    [4,599 files]  
+   ├── ✔ File metadata                   [4,599 locations]  
+   └── ✔ Executables                     [856 executables]  
+
+```
+
+- Instant 클래스는 좀 더 살펴보면 좋겠지만 간단히 얘기하자면 사람이 읽기엔 불편하지만 연산이 편리하고 서버를 외국에 둘 경우(?) 해당 로컬 시간을 따라가지 않는다는 장점이 있다.
+
+마찬가지로 비즈니스 로직도 수정해줘야한다.
 
 ```java
-
-public record Book(
-
-      @Id
-      Long id,
-
-      ...
-      ...
-
-      @Version
-      int version
-}{
-    public static Book of(String isbn, String title, String author, Double price, String publisher) {
-        return new Book(null, isbn, title, author, price, publisher, null, null, 0);
+    public Book editBookDetails(String isbn, Book book) {
+        return bookRepository.findByIsbn(isbn)
+                .map(existingBook -> {
+                    var bookToUpdate = new Book(
+                            existingBook.id(),
+                            existingBook.isbn(),
+                            book.title(),
+                            book.author(),
+                            book.price(),
+                            existingBook.createdDate(), // <--
+                            existingBook.lastModifiedDate(), // <--
+                            existingBook.version());
+                    return bookRepository.save(bookToUpdate);
+                })
+                .orElseGet(() -> addBookToCatalog(book));
     }
-}
 ```
 
-새로운 객체가 생길때 Id가 null이고, version이 0이면 새로운 엔티티라고 인식하게 된다.
-
-새로운 필드가 추가되어, 관련 비즈니스 로직도 수정해줘야한다.
-
-```java
-//BookService.java
-public Book editBookDetails(String isbn, Book book) {
-    return bookRepository.findByIsbn(isbn)
-            .map(existingBook -> {
-                var bookToUpdate = new Book(
-                        existingBook.id(),
-                        existingBook.isbn(),
-                        book.title(),
-                        book.author(),
-                        book.price(),
-                        existingBook.version());
-                return bookRepository.save(bookToUpdate);
-            })
-            .orElseGet(() -> addBookToCatalog(book));
-}
-```
-
-엔티티 내용을 수정하면 관련 엔티티로 Id로 업데이트해주고 기존에 사용하던 version으로 변경해준다. 이때의 버전은 1이 증가된 값이 들어가게 될 것이다.
-
-테스트용으로 사용했던 정적 팩토리 메서드도 수정해줘야한다.
-
-```java
-//BookDataLoader.java
-@Component
-@Profile("testdata")
-public class BookDataLoader {
-    private final BookRepository bookRepository;
-
-    public BookDataLoader(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void loadData() {
-        var book1 = Book.of("1234567891", "Test", "Lyra", 9.91);
-        var book2 = Book.of("1234567892", "Test book", "Polar", 9.94);
-        bookRepository.save(book1);
-        bookRepository.save(book2);
-    }
-}
-```
-
-인자로 수정된 필드값을 넣어주지 않았는데, 프레임워크단에서 알아서 Id,version을 매핑해주기 때문이다.
-
-이렇게 실행하면 테스트코드에서 문제가 생길텐데, 이 또한 위와같이 수정해주면 된다.
-
-스프링 데이터에는 애플리케이션이 시작될 때 관련 테이블을 생성할 수 있게 도와주는 기능을 제공한다.
-
-## □ 데이터베이스 스키마 생성
-
-기본적으로 `src/main/resources`에 존재하는 `schema.sql`을 통해 스키마를 생성할 수 있게 한다. 
-
-해당 경로에 파일을 작성하면 된다.
+sql도 수정해줘야한다.
 
 ```sql
--- /src/main/resources/schema.sql
 DROP TABLE IF EXISTS book;
 CREATE TABLE book(
     id BIGSERIAL PRIMARY KEY NOT NULL,
@@ -180,48 +260,9 @@ CREATE TABLE book(
 )
 ```
 
-당연히 운영환경에서는 사용하기 애매한 감이 있고, 인메모리 데이터베이스를 사용할 경우에만 자동으로 해당 구문을 적용하므로 따로 설정을 해줘서 해당 sql을 실행하게끔 해야한다.
+## □ 데이터베이스 레포지토리 생성
 
-```properties
-spring.sql.init.mode=always
-```
-
-이를 통해서 애플리케이션이 시작할때마다 관련 테이블을 삭제했다가 뜰 수 있게 한다.
-
-## □ JDBC 감사 활성화
-
-테이블의 각 행에 대해서 수정날짜 및 생성날짜를 알면 서비스를 유지보수, 관리하는데에 이점이 많다. Spring Data는 개발자가 수동으로 관련 코드를 삽입하지 않게끔 기능을 제공하고 있다.
-
-관련 설정 클래스 파일 생성하여 빈에 등록해주고 `@@EnableJdbcAuditing` 애노테이션을 달아주면 해당 클래스 파일을 통해서 데이터 감사 기능을 추가할 수 있다.
-
-```java
-package com.polarbookshop.catalogservice.config;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jdbc.repository.config.EnableJdbcAuditing;
-
-@Configuration
-@EnableJdbcAuditing
-public class DataConfig {
-}
-```
-
-이를통해 데이터가 변경,삭제 등의 작용이 일어날때마다 감사 이벤트가 생성된다.
-스프링 데이터는 이 감사 이벤트에 대한 정보를 받아 데이터베이스에 저장할 수 있게 도와주는 애노테이션을 제공한다.
-
-대표적으로는 `@CreatedDate`, `@LastModifiedDate`가 있는데 이를 Book 레코드에 달아주면 된다.
-
-```java
-public record Book(
-    ...
-    @CreatedDate
-    Instant createdDate,
-
-    @LastModifiedDate
-    Instant lastModifiedDate
-    ...
-)
-```
+데이터 레포지토리 추상화하여 인터페이스를 제작한다.
 
 
 
