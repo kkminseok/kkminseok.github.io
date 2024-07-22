@@ -1,5 +1,5 @@
 ---
-title: 클라우드 네이티브 인 액션(5) - 컨테이너화
+title: 클라우드 네이티브 인 액션(5) - Spring boot docker 컨테이너화
 author: minseok
 date: 2024-07-16 00:02:00 +0800
 categories: [Spring]
@@ -221,50 +221,114 @@ What's next:
 
 ```
 
-- Instant 클래스는 좀 더 살펴보면 좋겠지만 간단히 얘기하자면 사람이 읽기엔 불편하지만 연산이 편리하고 서버를 외국에 둘 경우(?) 해당 로컬 시간을 따라가지 않는다는 장점이 있다.
 
-마찬가지로 비즈니스 로직도 수정해줘야한다.
+## □ 클라우드 네이티브 빌드팩 사용
 
-```java
-    public Book editBookDetails(String isbn, Book book) {
-        return bookRepository.findByIsbn(isbn)
-                .map(existingBook -> {
-                    var bookToUpdate = new Book(
-                            existingBook.id(),
-                            existingBook.isbn(),
-                            book.title(),
-                            book.author(),
-                            book.price(),
-                            existingBook.createdDate(), // <--
-                            existingBook.lastModifiedDate(), // <--
-                            existingBook.version());
-                    return bookRepository.save(bookToUpdate);
-                })
-                .orElseGet(() -> addBookToCatalog(book));
+도커파일을 사용해서 애플리케이션을 이미지화 할 수 있지만, 빌드팩을 이용해서 이미지화 할 수도 있다.
+
+build.gradle에 다음 구문을 추가해준다.
+
+```gradle
+bootBuildImage {
+	imageName = "${project.name}" // 이미지 명
+	environment = ["BP_JVM_VERSION": "17.*"] //설치할 Jvm버전
+}
+```
+
+이후, 다음 명령어를 통해 애플리에키션을 이미지화 시켜준다.
+
+```sh
+> ./gradlew bootBuildImage
+
+> Task :bootBuildImage
+Building image 'docker.io/library/catalog-service:latest'
+
+<==========---> 83% EXECUTING [1m 6s]
+> :bootBuildImage
+
+```
+
+처음 실행하면 컨테이너 이미지를 만드는데 필요한 패키지들을 다운받느라 시간이 꽤 소요된다.
+
+만약 본인이 M1, M2와 같은 arm64운영체제를 사용한다면
+
+build.gradle에 다음 항목을 추가하여 arm64에서도 동작할 수 있게 수정한다.
+
+```gradle
+tasks.named('bootBuildImage') {
+	if (System.getProperty("os.arch").toLowerCase().startsWith('aarch')) {
+		builder = "ghcr.io/thomasvitale/builder-arm:tiny"
+	}
+	builder = "paketobuildpacks/builder:tiny"
+}
+```
+
+이후 정상적으로 애플리케이션이 작동한 것을 확인한 뒤,
+
+```sh
+> http :9001/books                                                                                                                                                            main [15590a1] deleted renamed modified untracked
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/json
+Date: Mon, 22 Jul 2024 04:35:51 GMT
+Keep-Alive: timeout=15
+Transfer-Encoding: chunked
+
+[
+    {
+        "author": "Lyra",
+        "createdDate": "2024-07-22T04:35:45.021718Z",
+        "id": 1,
+        "isbn": "1234567891",
+        "lastModifiedDate": "2024-07-22T04:35:45.021718Z",
+        "price": 9.91,
+        "publisher": "kms",
+        "title": "Test",
+        "version": 1
     }
+]
 ```
 
-sql도 수정해줘야한다.
+요청을 보내 확인하면 된다.
 
-```sql
-DROP TABLE IF EXISTS book;
-CREATE TABLE book(
-    id BIGSERIAL PRIMARY KEY NOT NULL,
-    author varchar(255) NOT NULL,
-    isbn varchar(255) UNIQUE NOT NULL,
-    price float8 NOT NULL,
-    title varchar(255) NOT NULL,
-    created_date timestamp NOT NULL,
-    last_modified_date timestamp NOT NULL,
-    version integer NOT NULL
-)
+스프링 부트2.4부터는 이미지를 도커 허브와 같은 레지스트리로 자동 저장할 수 있게끔 지원한다.
+
+```gradle
+bootBuildImage {
+	imageName = "${project.name}"
+	environment = ["BP_JVM_VERSION": "17.*"]
+
+	docker {
+		publishRegistry {
+			username= project.findProperty("registryUsername")
+			password = project.findProperty("registryToken")
+			url = project.findProperty("registryUrl")
+		}
+	}
+}
 ```
 
-## □ 데이터베이스 레포지토리 생성
+docker 항목을 추가로 입력한다. 보안을 위해 설정속성들은 외부로 뺌을 알 수 있다.
 
-데이터 레포지토리 추상화하여 인터페이스를 제작한다.
+이후 실행할 때에는
+```sh
+./gradlew bootBuildImage --imageName ghcr.io/<github_username>/catalog-service --publishImage -PregistryUrl=ghcr.io -PregistryUsername=<github_username> -PregistryToken=<github_token>
+```
 
+으로 이미지를 배포하게 되면 
 
+![](/assets/img/cloudNativeSpringInAction/6_app_container.png)
 
+이렇듯 본인 깃허브의 패키지에 배포되게 된다.
 
+나는 추후예제 연습을위해 바로 삭제해주었다.
+
+## □ 도커 컴포즈를 사용하여 스프링부트 앱 컨테이너화
+
+도커 컴포즈를 사용하는 이유는 다음과 같다.
+- 도커 CLI의 명령어는 방대하고 오타의 위험이 존재한다.
+- 여러 도커 컨테이너를 띄우려면 더 복잡한 과정을 거친다.
+- 도커 CLI는 버전관리를 하기 어렵다.
+
+라는 이유로 도커 컴포즈를 사용하게 된다.
 
