@@ -360,5 +360,53 @@ services:
 
 BPL_JVM_THREAD_COUNT 옵션은 JVM 쓰레드 수를 설정하는 옵션인데, 기본값은 250이다. 예제에서는 많은 값의 쓰레드를 할당할 필요가 없으므로 50으로 조정하여 애플리케이션에 너무 많은 리소스를 할당하지 않게끔 한다.
 
+## □ 스프링 부트 컨테이너 디버깅
 
+컨테이너로 실행하면 애플리케이션 자체가 로컬에서 실행되지 않기 떄문에 디버그하기 어려운 부분이 있다.
+
+컨테이너 내부의 JVM에게 특정 포트를 통해 디버그 연결을 듣도롣 설정하도록 한다.
+디버그 포트를  컨테이너 외부로 노출하면 IDE가 그 포트를 통해 연결을 할 수 있다.
+
+따라서 yml파일을 업데이트해야한다.
+
+```yml
+services:
+  catalog-service:
+    depends_on:
+      - polar-postgres
+    image: "catalog-service"
+    container_name: "catalog-service"
+    ports:
+      - 9001:9001
+      - 8001:8001 # 포트 바인딩
+    environment:
+      - BPL_JVM_THREAD_COUNT=50
+      - BPL_DEBUG_ENABLED=true # <-- 디버그 모드 활성화를 위해 JVM 설정 활성화
+      - BPL_DEBUG_PORT=8001 # <-- 8001포트를 통해 디버그 연결을 받음
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://polar-postgres:5432/polardb_catalog
+      - SPRING_PROFILES_ACTIVE=testdata
+  polar-postgres:
+    image: "postgres:14.12"
+    container_name: "polar-postgres"
+    ports:
+    - 15432:5432
+    environment:
+    - POSTGRES_USER=user
+    - POSTGRES_PASSWORD=password
+    - POSTGRES_DB=polardb_catalog
+```
+
+이후 `docker-compose up -d`를 통해 컨테이너들을 실행해준다.
+
+Intellij 기준 Remote Debugger를 연결해주면 되는데, Run/Debug Configurations 탭에 들어가서
+
+![](../assets/img/cloudNativeSpringInAction/6_debugger.png)
+
+이렇게 설정해주면 된다.
+
+이후 컨테이너를 띄우고 디버그를 활성화하여 제대로 소켓 연결이 되었는지 확인한다.
+
+이 모든 과정을 수동으로 진행했는데, githubAction으로 자동화하여 작업의 양을 줄이도록 해야한다.
+
+## □ GithubAction을 이용한 배포 파이프라인 구성
 
