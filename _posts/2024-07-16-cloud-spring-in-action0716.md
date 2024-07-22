@@ -332,3 +332,33 @@ docker 항목을 추가로 입력한다. 보안을 위해 설정속성들은 외
 
 라는 이유로 도커 컴포즈를 사용하게 된다.
 
+```yml
+services:
+  catalog-service:
+    depends_on:
+      - polar-postgres
+    image: "catalog-service"
+    container_name: "catalog-service"
+    ports:
+      - 9001:9001
+    environment:
+      - BPL_JVM_THREAD_COUNT=50
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://polar-postgres:5432/polardb_catalog
+      - SPRING_PROFILES_ACTIVE=testdata
+  polar-postgres:
+    image: "postgres:14.12"
+    container_name: "polar-postgres"
+    ports:
+    - 15432:5432
+    environment:
+    - POSTGRES_USER=user
+    - POSTGRES_PASSWORD=password
+    - POSTGRES_DB=polardb_catalog
+```
+
+다음과 같이 도커 컴포즈를 작성해주면 된다.
+
+BPL_JVM_THREAD_COUNT 옵션은 JVM 쓰레드 수를 설정하는 옵션인데, 기본값은 250이다. 예제에서는 많은 값의 쓰레드를 할당할 필요가 없으므로 50으로 조정하여 애플리케이션에 너무 많은 리소스를 할당하지 않게끔 한다.
+
+
+
