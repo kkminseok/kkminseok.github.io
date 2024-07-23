@@ -7,7 +7,7 @@ tags: [Spring]
 math: true
 mermaid: true
 image: 
-    path: /assets/img/cloudNativeSpringInAction/main.jpeg
+    path: /assets/img/cloudNativeSpringInAction/main.png
     alt: Cloud Native Spring In Action
 comments: true
 ---
