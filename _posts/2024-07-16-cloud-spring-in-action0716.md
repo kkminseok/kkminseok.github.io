@@ -410,3 +410,108 @@ Intellij 기준 Remote Debugger를 연결해주면 되는데, Run/Debug Configur
 
 ## □ GithubAction을 이용한 배포 파이프라인 구성
 
+3장에서 커밋단계를 위한 워크플로 작업을 진행하였다. 애플리케이션을 패키징하고 배포하는 작업을 추가해야한다.
+
+```yml
+name: Commit Stage
+on: push
+
+env:
+  REGISTRY: ghcr.io # 깃허브 저장소 사용
+  IMAGE_NAME: kkminseok/catalog-service # 이미지명
+  VERSION: latest # 이미지 버전
+
+
+jobs:
+  build:
+    env:
+      catalog-directory: catalog-service
+
+    name: Build and Test
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - name: Code vulnerability scanning
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          path: "${{ github.workspace }}"
+          fail-build: false
+          severity-cutoff: high
+          acs-report-enable: true
+      - name: Upload vulnerability report
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+      - name: Build, unit tests and integrations tests
+        run: |
+          chmod +x gradlew
+          ./gradlew build
+        working-directory: ${{env.catalog-directory}}
+  package: # Job 고유 식별자
+    name: Package and Publish # 이름
+    if: ${{ github.ref == 'refs/heads/main' }} # main 브랜치에대해서 실행
+    needs: [ build ] # build 잡이 성공적으로 수행된 경우에만 실행
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write # package 쓰기 권한 추가
+      security-events: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4 
+      - name: Set up JDK
+        uses: actions/setup-java@v4 # Java 설치
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - name: Build container image # 스프링 빌드 통합팩 사용
+        run: | # 필자는 멀티모듈 구성이라 디렉터리로 이동해서 진행해줘야함.
+          cd catalog-service 
+          chmod +x gradlew
+          ./gradlew bootBuildImage \
+            --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+      - name: OCI image vulnerability scanning # 취약점 검사
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          fail-build: false # 취약점이 발견되어도 빌드 실패로 만들지 않음.
+          severity-cutoff: high
+      - name: Upload vulnerability report # 깃허브에 보안 취약점 검사 업로드
+        uses: github/codeql-action/upload-sarif@v3 
+        if: success() || failure()
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+      - name: Log into container registry # 깃허브 컨테이너 저장소 인증
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }} # 현재 사용자의 깃허브 계정명
+          password: ${{ secrets.GITHUB_TOKEN }} # 저장소 인증을 위한 토큰. 깃허브가 제공
+      - name: Publish container image # 깃허브 레지스트리 저장소로 push
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+```
+
+이렇게 모든 절차가 완료되면
+
+자동으로 ghcr에 이미지가 배포되게 된다.
+
+![](/assets/img/cloudNativeSpringInAction/6_package.png)
+
+
+여기까지 6장의 내용이다.
+
+회사에 적용해볼법한 것은 계층화된 Jar와 클라우드 빌드팩을 사용하여 이미지를 자동으로 만드는 것이고, 개인적으로 학습한 것은 Github에 Packages가 어떤 존재인지 잘 몰랐는데 이번 챕터를 통해서 학습하게 되었다.
