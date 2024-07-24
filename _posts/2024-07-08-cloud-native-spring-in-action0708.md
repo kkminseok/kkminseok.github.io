@@ -2,7 +2,7 @@
 title: 클라우드 네이티브 인 액션(3) - Spring Cloud Cofig사용
 author: minseok
 date: 2024-07-08 00:02:00 +0800
-categories: [Spring]
+categories: [Book, Cloud-Native-Spring-In-Action]
 tags: [Spring]
 math: true
 mermaid: true
