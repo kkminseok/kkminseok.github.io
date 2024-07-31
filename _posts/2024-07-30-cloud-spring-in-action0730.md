@@ -477,5 +477,158 @@ Content-Type: application/json
 
 이렇게 요청이 성공하면 된다.
 
-서비스간의 api호출은 이렇게 쉽게 성공하면 다행이지만 타임아웃이 나거나 요청이 실패하는 등, 카탈로그 서비스에서 오류를 반환하면 이를 받는 주문서비스에서는 어떻게 처리해야할까? 이에 대한 해결책을 제시해된다.
+서비스간의 api호출은 이렇게 쉽게 성공하면 다행이지만 타임아웃이 나거나 요청이 실패하는 등, 카탈로그 서비스에서 오류를 반환하면 이를 받는 주문서비스에서는 어떻게 처리해야할까? 이에 대한 해결책을 제시해된다. 즉, 복원력을 가지게 설계햐아한다.
+
+예제에서는 타임아웃, 재시도, 폴백을 설정함으로써 복원력을 갖추려고한다.
+
+## □ 타임아웃 설정
+
+타임 아웃을 설정하는 이유가 있다. 규격을 못 맞췄을때 응답을 기다릴 필요가 없고 요청 처리 실패를 진행해야하며, 타임아웃을 설정하지 않아서 응답을 기다리느라 모든 가용 스레드가 차단되어 요청을 처리못하는 경우를 막아준다.
+
+타임아웃폴백이 설정되어있으면 타임아웃이 발생하는 경우 폴백을 수행하고 반환하게 된다.
+
+이를 적용 하기 위해 WebClient에서 제공하는 `timeout()` 메서드를 통해서 정의를 추가해본다.
+
+```java
+public Mono<Book> getBookByIsbn(String isbn) {
+        return webClient
+                .get()
+                .uri(BOOKS_ROOT_API + isbn)
+                .retrieve()
+                .bodyToMono(Book.class)
+                .timeout(Duration.ofSeconds(3), Mono.empty()); // <-- 3초의 타임아웃 설정, 폴백으로 빈 모노 객체를 반환
+    }
+```
+
+이렇게 설정하면 끝이다.
+
+타임아웃을 적절하게 설정하는 것도 고민해야할 부분이다. 과부하가 걸려서 데이터를 가져오는데 생각보다 긴 시간이 지나갈 수 있는데, 이럴 경우에는 예외를 발생하기 보다는 요청 재시도 전략을 통해서 해결할 수도 있다.
+
+## □ 요청 재시도 설정
+
+지수 백오프라는 전략을 사용해서 요청 재시도 횟수가 늘어남에 따라 지연 시간도 늘리는 방법이 있는데 지원 서비스가 다시 응답할 수 있는 충분한 시간을 확보해주기 위함이다.
+
+```java
+    public Mono<Book> getBookByIsbn(String isbn) {
+        return webClient
+                .get()
+                .uri(BOOKS_ROOT_API + isbn)
+                .retrieve()
+                .bodyToMono(Book.class)
+                .timeout(Duration.ofSeconds(3), Mono.empty())
+                .retryWhen(
+                        Retry.backoff(3, Duration.ofMillis(100))
+                );
+    }
+```
+
+참고로 retryWhen()이 timeout()보다 먼저오면 timeout에 대해서 작동한다. 즉, 요청 및 재시도 모두 타임아웃내로 마무리되어야함을 뜻한다.
+
+해당 코드는 지수 백오프를 재시도 전략으로 사용하며, 100밀리초의 초기 백오프로 총 3회를 실히한다는 의미다.
+
+재시도를 사용함에서 주의해야할 것이 있는데, 멱등성을 보장하는 작업에 대해서 재시도 전략을 사용하는게 좋다. 결제 같은 서비스는 요청 재시도함으로써 계속해서 돈이 지불될 수 있는 위험성을 안고 있기 때문이다.
+
+폴백 및 오류처리에 대해서도 알아본다.
+
+이를 설정하는 이유는 사용자가 계속해서 잘못된 요청을 하지 않게끔 하기 위함이다.
+404같은 에러는 어떤 데이터가 존재하지 않음을 나타내는데, 이럼에도 불구하고 계속해서 재시도를 하는 경우가 있을 수 있기에 이를 방지하고자 재시도 연산자가 수행하지 않게끔 설정해야한다.
+
+## □ 예외처리와 폴백
+
+```java
+
+    public Mono<Book> getBookByIsbn(String isbn) {
+        return webClient
+                .get()
+                .uri(BOOKS_ROOT_API + isbn)
+                .retrieve()
+                .bodyToMono(Book.class)
+                .timeout(Duration.ofSeconds(3), Mono.empty())
+                
+                .onErrorResume(WebClientResponseException.NotFound.class,
+                        exception -> Mono.empty())
+                .retryWhen(
+                        Retry.backoff(3, Duration.ofMillis(100))
+                )
+                .onErrorResume(Exception.class,
+                        exception -> Mono.empty());
+    }
+```
+
+이렇게 설정하면 404응답을 받는 경우 재시도 연산자사 수행하지 않게끔 설정하고, Exception.class 관련 에러가 발생하면 빈 모노객체를 반환하게끔 하였다.
+
+## □ 스프링 웹플럭스 테스트 컨테이너, 통합 테스트
+
+모의 웹서버를 실행해 Rest API 테스트를진행하고, 테스트 컨테이너를 통해서 데이터 지속성 계층을 테스트한다. 그리고 `@WebFluxTest`를 통하여 웹 계층에 대한 슬라이스 테스트를 진행한다.
+
+웹 계층 테스트를 위해 의존성을 하나 추가해줘야한다.
+
+```gradle
+testImplementation 'com.squareup.okhttp3:mockwebserver'
+```
+
+```java
+class BookClientTests {
+    
+    private MockWebServer mockWebServer;
+    private BookClient bookClient;
+    
+    @BeforeEach
+    void setup() throws IOException {
+        this.mockWebServer = new MockWebServer();
+        this.mockWebServer.start();//모의 서버 시작
+        var webClient = WebClient.builder()
+                .baseUrl(mockWebServer.url("/").uri().toString())
+                .build();//모의 서버 URL을 웹 클라이언트의 베이스 URL로 사용
+        this.bookClient = new BookClient(webClient);
+    }
+    
+    @AfterEach
+    void clean() throws IOException{
+        this.mockWebServer.shutdown();//모의 서버 중지
+    }
+
+    @Test
+    void whenBookExistsThenReturnBook() {
+        var bookIsbn = "1234567890";
+
+        var mockResponse = new MockResponse() //모의 서버에 반환되는 응답 정의
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setBody("""
+                        {
+                            "isbn": %s,
+                            "title": "Title",
+                            "author": "Author",
+                            "price": 9.90,
+                            "publisher": "Polarsophia"
+                        }
+                        """.formatted(bookIsbn));
+
+        mockWebServer.enqueue(mockResponse);// 모의 서버가 처리하는 큐에 모의 응답 추가
+
+        Mono<Book> book = bookClient.getBookByIsbn(bookIsbn);
+
+        StepVerifier.create(book) //StepVerifier 객체를 초기화
+                .expectNextMatches(
+                        b -> b.isbn().equals(bookIsbn)) //반환된 책의 ISBN이 같은지 확인
+                .verifyComplete();
+
+    }
+}
+```
+
+보이는것처럼 StepVerifier로 Mono객체에 대한 검증을 깔끔하게 할 수 있게 되었다.
+
+다음은 지속성 테스트이다. 이를 테스트 하기 위해서는 `@DataR2dbcTest`를 사용해야한다.
+
+
+
+
+
+
+
+
+
+
+
 
