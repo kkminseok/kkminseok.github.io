@@ -312,3 +312,170 @@ Content-Type: application/json
 HTTP 요청을 수행하기 위한 클라이언트를 번들로 제공하는데 크게 2가지가있다.
 RestTemplate과 WebClient인데, RestTemplate은 업데이트가 되지 않아서 실질적으로 중단된 상태로 있고 WebClient는 이러한 RestTemplate의 대안으로 나왔다. 
 
+다른 서비스를 호출하기 위해서 해당 서비스의 URI정보를 가지고 있어야하는데, 보통 설정으로 따로 관리하기에 `ConfigurationProperties`어노테이션을 사용해 관리하도록 한다.
+
+```java
+//ClientProperties.java
+@ConfigurationProperties(prefix = "polar")
+public record ClientProperties(@NotNull
+                               URI catalogServiceUri) {
+}
+
+
+
+//OrderServiceApplication.java
+@SpringBootApplication
+@ConfigurationPropertiesScan // <--
+public class OrderServiceApplication {
+    ...
+}
+
+//application.yml
+polar:
+  catalog-service-uri: "http://localhost:9001"
+```
+
+주문 서비스와 카탈로그 서비스 모두 book이라는 객체를 가지고 있는데, 이 둘을 관리하려면 어떻게 해야할까? 공유 라이브러리로 만들어서 관리하면 두 서비스간의 결합도가 높아지고, 각자 관라히게 되면 코드를 두 서비스 모두 수정해야하는 단점이 있다.
+
+프로젝트마다 다르겠지만 이 예제에서는 후자의 방법을 사용한다고 한다.
+
+따라서 주문서비스에서 카타로그 서비스로 요청을 보내고 받을 객체를 정의해야한다.
+
+## □ DTO 생성
+
+```java
+package com.nhn.corp.ext.orderservice.book;
+
+public record Book (
+        String isbn,
+        String title,
+        String author,
+        Double price
+){}
+```
+
+클라이언트 설정도 해준다.
+
+```java
+@Configuration
+public class ClientConfig {
+
+    @Bean
+    WebClient webClient(
+            ClientProperties clientProperties,
+            WebClient.Builder webClientBuilder
+    ){
+        return webClientBuilder.baseUrl(clientProperties.catalogServiceUri().toString()).build();
+    }
+}
+```
+
+요청 보낼시 baseurl는 위에서 설정한 localhost:9001로 지정될 것이다.
+
+이제 Book관련 요청을 보낼 수 있게 도와주는 BookClient 클래스를 작성한다.
+
+```java
+
+@Component
+public class BookClient {
+    private static final String BOOKS_ROOT_API = "/books/";
+    private final WebClient webClient;
+
+    public BookClient(WebClient webClient){
+        this.webClient = webClient;
+    }
+
+    public Mono<Book> getBookByIsbn(String isbn) {
+        return webClient
+                .get()
+                .uri(BOOKS_ROOT_API + isbn)
+                .retrieve()
+                .bodyToMono(Book.class);
+    }
+
+}
+```
+
+- retrieve(): 요청을 보내고 응답을 받는다.
+- bodyToMono(): Mono형태의 Book.class를 받도록 설정즉, Mono<Book>객체를 받을 것이다.
+
+
+저번장에서 OrderService에 submitOrder()메서드를 호출하면 무조건 buildRejectedOrder를 호출하여 실제 서비스간의 요청이 오고가지 않도록 하였는데, 이를 수정해야한다.
+
+## □ Order 서비스 수정
+
+```java
+package com.nhn.corp.ext.orderservice.order.domain;
+
+import com.nhn.corp.ext.orderservice.book.Book;
+import com.nhn.corp.ext.orderservice.book.BookClient;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@Service
+public class OrderService {
+
+    private final BookClient bookClient;
+    private final OrderRepository orderRepository;
+
+    public OrderService(BookClient bookClient, OrderRepository orderRepository) {
+        this.bookClient = bookClient;
+        this.orderRepository = orderRepository;
+    }
+
+    public Flux<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    public Mono<Order> submitOrder(String isbn, int quantity) {
+        return bookClient.getBookByIsbn(isbn)
+                .map(book -> buildAcceptedOrder(book,quantity))
+                .defaultIfEmpty(buildRejectedOrder(isbn,quantity))
+                .flatMap(orderRepository::save);
+    }
+
+    public static Order buildAcceptedOrder(Book book, int quantity) {
+        return Order.of(book.isbn(), book.title() + "-" + book.author(),
+                book.price(), quantity, OrderStatus.ACCEPTED);
+    }
+
+    public static Order buildRejectedOrder(String bookIsbn, int quantity) {
+        return Order.of(bookIsbn, null, null, quantity, OrderStatus.REJECTED);
+    }
+
+}
+
+```
+
+위의 코드에서 submitOrder()는 책의 주문이 가능하면 접수를 진행하고 불가능하다면 주문을 거부하는 코드를 작성한다.
+
+이후 주문이 가능한 Book 객체를 생성한 뒤 주문api를 통하여 테스트해본다.
+
+```sh
+> http POST :9001/books author="Jon Snow" title="" isbn="123ABC4562" price=9.98
+
+> http POST :9002/orders isbn=123456891 quantity=3
+
+http POST :9002/orders isbn=1234567891 quantity=3
+HTTP/1.1 200 OK
+Content-Length: 232
+Content-Type: application/json
+
+{
+    "bookIsbn": "1234567891",
+    "bookName": "Northern Lights-Lyra Silverstar",
+    "bookPrice": 9.98,
+    "createdDate": "2024-07-31T05:38:05.851342Z",
+    "id": 1,
+    "lastModifiedDate": "2024-07-31T05:38:05.851342Z",
+    "quantity": 3,
+    "status": "ACCEPTED",
+    "version": 1
+}
+```
+
+이렇게 요청이 성공하면 된다.
+
+서비스간의 api호출은 이렇게 쉽게 성공하면 다행이지만 타임아웃이 나거나 요청이 실패하는 등, 카탈로그 서비스에서 오류를 반환하면 이를 받는 주문서비스에서는 어떻게 처리해야할까? 이에 대한 해결책을 제시해된다.
+
