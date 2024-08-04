@@ -30,7 +30,7 @@ comments: true
 ### 의존성 설정
 
 ```gradle
-implementation 'org.springframework.cloud:spring-cloud-starter-gateway-mvc'
+implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 ```
 
