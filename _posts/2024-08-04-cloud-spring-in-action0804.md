@@ -509,9 +509,80 @@ class EdgeServiceApplicationTests {
 현재 쿠버네티스로 다른 서비스들은 배포 되고 있는데 위의 서비스는 배포 됨뿐만 아니라 외부 접근점도 가지고 있기에 이에 따른 추가 설정이 필요하다.
 쿠버네티스 인그레스를 통해서 외부와의 통신점을 연결해줘야한다.
 
+minikube를 사용중이기에 기존에 사용하던 polar 클러스터를 실행한다.
 
+```sh
+> minikube start --cpus 2 --memory 4g --driver docker --profile polar
+```
 
+이후 다음 명령어로 인그레스 nginx를 로컬 클러스터에 배포한다.
 
+```sh
+> minikube addons enable ingress --profile polar
+
+> kubectl get all -n ingress-nginx                                                   
+NAME                                            READY   STATUS      RESTARTS   AGE
+pod/ingress-nginx-admission-create-96rc4        0/1     Completed   0          5m51s
+pod/ingress-nginx-admission-patch-84h5g         0/1     Completed   1          5m51s
+pod/ingress-nginx-controller-768f948f8f-p4cws   1/1     Running     0          5m51s
+
+NAME                                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service/ingress-nginx-controller             NodePort    10.104.30.125   <none>        80:31224/TCP,443:30475/TCP   6m2s
+service/ingress-nginx-controller-admission   ClusterIP   10.103.110.70   <none>        443/TCP                      6m2s
+
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ingress-nginx-controller   1/1     1            1           6m2s
+
+NAME                                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/ingress-nginx-controller-768f948f8f   1         1         1       5m51s
+
+NAME                                       STATUS     COMPLETIONS   DURATION   AGE
+job.batch/ingress-nginx-admission-create   Complete   1/1           16s        6m2s
+job.batch/ingress-nginx-admission-patch    Complete   1/1           17s        6m2s
+```
+
+인그레스 nginx가 성공적으로 배포된 것을 확인 한 후, 인그레스를 통해 클러스 외부에 에지 서비스를 노출하기 위해 Ingress를 작성해준다.
+
+```yml
+# ingress.yml
+apiVersion: networking.k8s.io/v1 # Ingress Version
+kind: Ingress # Type
+metadata:
+  name: polar-ingress # Ingress Name
+spec:
+  ingressClassName: nginx # Ingress Controller
+  rules:
+    - http: # Http Rule
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: edge-service # 트래픽을 전달할 서비스 객체 이름
+                port:
+                  number: 80 # 트래픽을 전달할 서비스의 포트 정보
+```
+
+이를 적용하기 위해
+
+```sh
+kubectl apply -f ingress.yml 
+```
+
+을 실행한다.
+
+만약 minikube를 사용중이라면 로컬 호스트에 미니큐브 클러스터를 노출시켜주어야한다.
+
+```sh
+> minikube tunnel --profile polar
+
+# 테스트
+> http 127.0.0.1/books    
+```
+
+요청이 잘 도달하였다면 성공이다.
+
+이번 장에서는 스프링 클라우드 게이트웨이, 레디스, 세션, 인그레스 등등 알아둬야할 것들이 나왔는데 어느정도 학습되어 있어야 내용을 이해할 수 있음을 알 수 있었다.
 
 
 
