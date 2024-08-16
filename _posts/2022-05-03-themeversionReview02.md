@@ -8,8 +8,7 @@ categories: [Blogging,Tutorial]
 tags: [start git blog]
 math: true
 mermaid: true
-image: 
-  path: /assets/img/sample/logo.jpg
+
 comments : true
 ---
 
