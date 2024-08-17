@@ -336,11 +336,303 @@ testImplementation("org.springframework.cloud:spring-cloud-stream") {
 	}
 ```
 
+> 만약 다른 의존성으로인해서 오류가 발생한다면 제 깃레포지토리 의존성을 참고해주세요
+{: .prompt-info}
+
+
+
 이후 테스트 절차는 
 
 1. 테스트 바인더에 대한 설정을 제공하는 클래스 임포트
 2. 입력 바인딩(packlabel-in-0)을 나타내는 빈을 주입
 3. 출력 바인딩(packlabel-out-0)을 나타내는 빈을 주입
+
+테스트코드를 작성해본다.
+
+```java
+package com.nhn.corp.ext.dispatcherservice;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.binder.test.InputDestination;
+import org.springframework.cloud.stream.binder.test.OutputDestination;
+import org.springframework.cloud.stream.binder.test.TestChannelBinderConfiguration;
+import org.springframework.context.annotation.Import;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+@SpringBootTest
+@Import(TestChannelBinderConfiguration.class)
+public class FunctionsStreamIntegrationTests {
+
+    @Autowired
+    private InputDestination input;
+
+    @Autowired
+    private OutputDestination output;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    void whenOrderAcceptedThenDispatched() throws IOException {
+        long orderId = 3;
+        Message<OrderAcceptedMessage> inputMessage = MessageBuilder
+                .withPayload(new OrderAcceptedMessage(orderId)).build();
+        Message<OrderDispatchedMessage> expectedOutputMessage = MessageBuilder
+                .withPayload(new OrderDispatchedMessage(orderId)).build();
+        this.input.send(inputMessage);
+        assertThat(objectMapper.readValue(output.receive().getPayload(), OrderDispatchedMessage.class))
+                .isEqualTo(expectedOutputMessage.getPayload());
+
+    }
+}
+```
+
+## 스프링 클라우드 스트림을 통한 메시지 생성 및 소비
+
+생산자와 소비자를 구현해볼 예정이다.
+
+### 이벤트 소비자 구현 및 멱등성 문제
+
+배송서비스 애플리케이션은 주문의 배송이 이뤄지면 메시지를 생성하기에 주문 서비스에서 이벤트를 생성해야한다.
+
+주문 서비스 프로젝트에서 의존성을 추가해줘야한다.
+
+```gradle
+implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
+testImplementation("org.springframework.cloud:spring-cloud-stream")
+```
+
+이후 이벤트 소비자 DTO를 작성한다.
+
+```java
+package com.nhn.corp.ext.orderservice.order.event;
+
+public record OrderDispatchedMessage (
+        Long orderId
+){ }
+```
+
+비즈니스 로직을 구현할 차례이다. 
+주문이 발송되면 배송 서비스 애플리케이션이 생성한 메시지를 소비하는 함수를 구현한다. 
+이 메시지는 메시지를 수신하고 데이터베이스 엔티티를 업데이트할 Consumer가 된다. 
+
+```java
+//OrderService.java
+public Flux<Order> consumeOrderDispatchedEvent(Flux<OrderDispatchedMessage> flux) {
+        return flux.flatMap(message -> orderRepository.findById(message.orderId()))
+                .map(this::buildDispatchedOrder)
+                .flatMap(orderRepository::save);
+    }
+
+private Order buildDispatchedOrder(Order existOrder) {
+        return new Order(
+                existOrder.id(),
+                existOrder.bookIsbn(),
+                existOrder.bookName(),
+                existOrder.bookPrice(),
+                existOrder.quantity(),
+                OrderStatus.DISPATCHED, //배송됨
+                existOrder.createdDate(),
+                existOrder.lastModifiedDate(),
+                existOrder.version()
+        );
+    }
+```
+
+```java
+package com.nhn.corp.ext.orderservice.order.event;
+
+import com.nhn.corp.ext.orderservice.order.domain.OrderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Flux;
+
+import java.util.function.Consumer;
+
+@Configuration
+public class OrderFunctions {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderFunctions.class);
+
+    @Bean
+    public Consumer<Flux<OrderDispatchedMessage>> dispatchOrder(OrderService orderService) {
+        return flux -> orderService.consumeOrderDispatchedEvent(flux) //각 발송된 메시지에 대해 데이터 베이스 업데이트
+                .doOnNext(order -> log.info("The order with id {} is dispatched", order.id())) // 데이터베이스 업데이트시 로그성으로 남김
+                .subscribe(); //리액티브 스트림을 활성화 하기 위한 구독. 구독자가 없으면 스트림을 통해 데이터가 흐르지 않음.
+    }
+}
+```
+
+구현할 때 유념해야할 부분은 래빗MQ가 적어도 하나의 전달을 보증하기 때문에 중복으로 메시지를 받을 수 있다. 하지만 비즈니스로직상 특정 주문의 상태를 DISPATCHED로 보장하는 멱등성을 지니기에 걱정할 부분은 없다. 
+
+### 클라우드 스트림 바인딩 및 래빗 MQ 통합 설정
+
+통합을 위해서 의존성을 추가하였는데 이에 맞춰서 서버 설정도 추가해야한다.
+
+```yml
+spring:
+  cloud:
+    function:
+      definition: dispatchOrder
+    stream: 
+      bindings:
+        dispatchOrder-in-0:
+          destination: order-dispatched
+          group: {spring.application.name}
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
+    connection-timeout: 5s
+```
+
+order-dispatched.order-service 큐 및 메시지 채널을 생성한다.
+
+## 이벤트 생성자 구현 및 원자성 문제
+
+공급자는 메시지 발원지다. 공급자는 소비자와 달리 명시적으로 활성화해야 동작한다.
+
+다양한 방식으로 호출할 수 있지만 웹서비스를 제작하고 있으므로 Rest 엔드포인트를 사용하여 이벤트를 생성한다.
+즉, 주문 서비스에서 사용자가 POST요청을 보내면 주문 수락을 알리는 메시지를 생성한다.
+
+### DTO 모델링
+
+
+```java
+package com.nhn.corp.ext.orderservice.order.event;
+
+public record OrderAcceptedMessage(
+        Long orderId
+) {}
+```
+
+다음은 비즈니스로직을 작성해야하는데, `StreamBridge`라는 객체를 사용할 것이다.
+이 객체를 사용하면 REST 계층과 스트림을 연결할 수 있고 특정 대상에게 데이터를 보내는 명령을 수행할 수 있다. 이 객체에 더해 데이터를 정제하거나 로그와 같은 전처리도 가능하다.
+
+```java
+//OrderService.java
+
+@Service
+public class OrderService {
+   ....
+   private final StreamBridge streamBridge;
+
+
+    public OrderService(...,StreamBridge streamBridge) {
+        ...
+        this.streamBridge = streamBridge;
+    }
+
+
+        public void publishOrderAcceptedEvent(Order order) {
+        if (!order.status().equals(OrderStatus.ACCEPTED)){
+            return ;
+        }
+        var orderAcceptedMessage = new OrderAcceptedMessage(order.id());
+        log.info("Sending order accepted event with id: {}", order.id());
+        var result = streamBridge.send("acceptOrder-out-0", orderAcceptedMessage);
+        log.info("Result of sending data for order with id : {} :{}",order.id(), result);
+    }
+}
+```
+
+- publishOrderAcceptedEvent: 만약 접수된 상태가 아니라면 로직을 진행하지 않고, 메시지를 생성하여 StreamBridge 객체를 통하여 메시지를 acceptOrder-out-0 바인딩에 **명시적**으로 전달한다.
+
+
+클라우드 스트림 출력 바인딩을 설정해주자.
+
+```yml
+spring:
+  ... 
+  stream:
+    bindings:
+      dispatchOrder-in-0:
+        destination: order-dispatched
+        group: {spring.application.name}
+      acceptOrder-out-0:
+        destination: order-accepted
+```
+
+이제 주문이 접수될 때마다 위에서 작성한 함수를 호출하게끔 하면 된다.
+
+시스템의 일관성을 유지하기 위해서 데이터베이스에 데이터를 저장하는 것과 메시지를 전송하는것은 하나의 **트랜잭션**으로 처리되어야한다. 둘 다 성공하거나 둘 다 실패해야한다. 그래서 두 개의 작업을 하나의 트랜잭션으로 묶어야한다. 
+
+때문에 기존에 작성했던 함수에서 `@Transactional` 애노테이션과 로직을 추가해준다.
+
+```java
+@Transactional //원자성 보장
+public Mono<Order> submitOrder(String isbn, int quantity) {
+    return bookClient.getBookByIsbn(isbn)
+            .map(book -> buildAcceptedOrder(book,quantity))
+            .defaultIfEmpty(buildRejectedOrder(isbn,quantity))
+            .flatMap(orderRepository::save)
+            .doOnNext(this::publishOrderAcceptedEvent); // 메시지 발송 추가
+}
+```
+
+데이터베이스와 관련된 트랜잭션은 스프링 부트에서 미리 설정되어있지만 래빗MQ로 설정한 채널은 기본적으로 트랜잭션을 지원하지 않는다. 때문에 래빗MQ에 대한 트랜잭션을 지원하도록 yml에 내용을 추가해야한다.
+
+```yml
+spring:
+  ...
+  stream:
+  bindings:
+    dispatchOrder-in-0:
+      destination: order-dispatched
+      group: {spring.application.name}
+    acceptOrder-out-0:
+      destination: order-accepted
+  rabbit: # 추가 구문
+    bindings:
+      acceptOrder-out-0:
+        producer:
+          transacted: true
+```
+
+이렇게 진행하면 스프링 클라우드 스트림, 래빗 MQ에 대한 통합이 완료되었다.
+
+실제 테스트하는 방법은 기존 프로젝트 기반요소가 많이 포함되어 있어서 적는게 도움이 될 지 모르지만..
+
+```sh
+# 카탈로그 생성
+> http POST :9001/books author="kms" \
+title="Rabbit MQ Message Test" isbn="1234567896" \
+price=9.90 publisher="minseok-kang"
+
+# 책 3권 주문
+> http POST :9002/orders isbn=1234567896 quantity=3
+
+# 주문 상태 조회 - 상태가 DISPATCHED여야만 함.
+> http :9002/orders
+
+ {
+        "bookIsbn": "1234567896",
+        "bookName": "Rabbit MQ Message Test-kms",
+        "bookPrice": 9.9,
+        "createdDate": "2024-08-17T08:37:56.317637Z",
+        "id": 3,
+        "lastModifiedDate": "2024-08-17T08:37:56.513087Z",
+        "quantity": 3,
+        "status": "DISPATCHED",
+        "version": 2
+    },
+
+
+
+```
+
 
 
 
