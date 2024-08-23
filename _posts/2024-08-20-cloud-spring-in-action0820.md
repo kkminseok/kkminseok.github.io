@@ -202,3 +202,176 @@ Created new user with id '9dff5d03-4870-4606-9862-dac5fef2ee26'
 
 테스트 사용자를 만들었고 애플리케이션 레벨에서 인증전략을 어떻게 사용할 수 있을지 고민해야한다.
 
+## 오픈ID 커넥트, JWT 및 키클록을 통한 인증
+
+현재 키클록 브라우저에서 로그인을 통해 인증을 수행하게 되는데, 애플리케이션 레벨에서 인증은 키클록에 위임하고 신원 확인만을 위한 프로토콜을 수립, 데이터 형식을 정의해야한다. 이를 정의하기 위해서는 오픈ID 커넥트, JSON 웹토큰을 통해서 진행한다.
+
+- 오픈ID커넥트: 인증서버에게 인증을 맡기고 그 결과를 기반으로 **사용자의 신원을 확인하고 사용자의 정보를 검색할 수 있게 하는 프로토콜**이다. 인증 서버는 인증 단계의 결과를 ID토큰을 통해 클라이언트 애플리케이션에 전달한다. 
+    - OAuth2는 인증 토큰을 통해 액세스 위임 문제를 해결하지만 인증 자체를 다루지는 않음. 
+즉, Oauth2 + 인증 = OpenID Connect라고 이해하면 된다.
+    - ID토큰이란 사용자 인증 이벤트에 대한 정보를 나타내는 JSON웹 토큰같은것들을 말한다.
+
+OAuth2 프레임워크는 3가지 주요 행위가 있다.
+
+1. 인증 서버: 사용자 인증 및 토큰 발행을 담당하는 개체. ex) keycloak
+2. 사용자: 클라이언트 애플리케이션에 대한 인증된 액세스를 얻기 위해 인증 서버에 로그인 하는 사람들. ex) 고객
+3. 클라이언트: 사용자를 인증해야하는 애플리케이션 
+
+여담으로 키클록의 장점으로는 사용자가 로그인하기 위해 키클록과 직접 상호작용하기에 키클록 외에 어떤 시스템의 구성요소도 사용자의 정보가 노출되지 않는다는 장점이 있다.
+
+
+전체적인 흐름은 다음과 같다.
+
+1. 사용자가 애플리케이션에 요청
+2. 애플리케이션이 키클록으로 302 리다이렉트(로그인 필요)
+3. 사용자가 로그인 진행(요청은 애플리케이션으로)
+4. 애플리케이션에서 키클록으로 요청 전달
+5. 키클록이 크리덴셜 확인 후 인증코드 반환 + 애플리케이션으로 리다이렉트
+6. 애플리케이션이 받은 인증코드로 키클록에 ID Token(JWT) 교환 요청
+7. 키클록이 JWT반환
+8. 애플리케이션이 해당 정보를 가지고 JWT파싱 및 세션 저장
+9. 사용자 요청때마다 해당 정보를 사용
+
+으로 진행된다.
+
+이 흐름을 따라가기 위해 먼저 키클록에서 애플리케이션을 등록해본다.
+
+### 키를록, 애플리케이션 연동
+
+먼저 키클록 컨테이너 들어가서 세션 로그인을 진행해준다.
+
+```sh
+bash-4.4$ cd /opt/keycloak/bin/
+bash-4.4$ ./kcadm.sh config credentials --server http://localhost:8080 \
+> --realm master --user user --password password
+```
+
+이후 애플리케이션에 대한 클라이언트를 생성해준다.
+
+```sh
+bash-4.4$ ./kcadm.sh create clients -r PolarBookshop \ #realm
+> -s clientId=edge-service \ 
+> -s enabled=true \
+> -s publicClient=false \ # 기밀 클라이언트
+> -s secret=polar-keycloak-secret \ # 기밀클라이언트이므로 인증을 위한 시크릿 지정
+> -s 'redirectUris=["http://localhost:9000","http://localhost:9000/login/oauth2/code/*"]' # 사용자 로그인, 로그아웃 후 요청을 리다이렉션할 수 있는 권한을 키클록에 부여한 애플리케이션 URL
+Created new client with id 'f0e23430-3acc-4e3a-9b19-62650d011166'
+```
+
+참고로 localhost:9000/login/oauth2/code/*는 스프링 시큐리트가 기본적으로 제공하는 기본 형식이다. 로그아웃 후  리다이렉션을 지원하라면 localhost:9000도 추가해야한다.
+
+이제 OIDC 프로토콜을 이용해서 사용자 인증을 키클록에 위임하도록 애플리케이션을 리팩터링 해야한다.
+
+목적은 3가지다
+
+1. 오픈ID 커넥트를 사용한 사용자 인증
+2. 사용자 로그아웃 설정
+3. 인증된 사용자 정보 추출
+
+## 오픈ID 커넥트, JWT 등에 대한 애플리케이션 리팩터링
+
+
+먼저 Oauth2/OIDC클라이언트 기능을 지원하는 의존성을 추가한다.
+
+### 의존성 및 설정 수정
+
+```gradle
+implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+// test용
+testImplementation 'org.springframework.security:spring-security-test'
+```
+
+스프링 시큐리티와 키클록 통합 설정을 위해서 프로젝트의 `application.yml`파일을 열어서 정보를 수정해준다. 
+
+위에서 키클록 admin-cli에서 클라이언트를 생성할 때 식별자(edge-service)와 공유 시크릿(polar-keycloak-secret)을 정의하였다. 이를 이용해서 매핑해줘야한다.
+
+```yml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          # 밑의 식별자 이름은 아무거나 괜ㅊ낳다.
+          keycloak:
+            # 키클록에 정의된 클라이언트 식별자 
+            client-id: edge-service
+            # 키클록에 정의된 공유 시크릿
+            client-secret: polar-keycloak-secret
+            # 접근권한을 갖기를 원하는 영역의 목록. openid영역은 OAuth2에서 OIDC인증 수행
+            scope: openid
+        provider:
+          # 위의 registration에 정의된 이름과 같으면 됨.
+          keycloak:
+            # 특정 영역에 대한 OAuth2와 OIDC관련 모든 엔드포인트의 정보를 제공하는 키클록 URL
+            issuer-uri: http://localhost:8080/realms/PolarBookshop
+```
+
+### 스프링 시큐리티 수정
+
+기존 코드는 요청한 모든 사용자에 대해서 인증절차를 진행하도록 되어있는데 이를 바꿔서 **OIDC인증**을 사용하도록 바꿔본다.
+
+```java
+package com.polarbookshop.edgeservice.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+
+@EnableWebFluxSecurity
+public class SecurityConfig {
+
+    @Bean
+    SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+        return http
+                .authorizeExchange(exchange -> exchange.anyExchange().authenticated()) // 모든 요청에 대해 인증이 이뤄져야함.
+                .oauth2Login(Customizer.withDefaults()) //Oauth2/오픈ID커넥트 방식을 이용한 로그인 인증 진행
+                .build();
+    }
+}
+```
+
+이후 localhost:9000에 접속하면 keycloak 페이지로 자동 리다이렉트 될 것이다.
+
+![](/assets/img/cloudNativeSpringInAction/11_keycloak_login.png)
+
+
+> 이후 위에서 정의한 minseok, password 계정정보로 로그인하면 되어야하는데.. 사용자 정보를 도중에 가이드대로 바꿔주어서 isabelle 이라는 이름으로 로그인해야한다. 패스워드는 같다.
+{: .prompt-warn}
+
+
+로그인을 진행하고 성공하면 localhost:9000으로 리다이렉션되는데 아무런 설정도 해주지 않았기에 빈 화면만 보이게 된다.
+
+인증 자체는 성공하였으니, 스프링 시큐리티와 인증성공한 세션에 대하여 브라우저와 통신하고 저장하게 된다.
+
+이를 구현해보도록 한다.
+
+## 스프링 시큐리티 컨텍스트에 인증정보 저장
+
+사용자에 대한 정보를 매핑하기 위한 스프링 시큐리티가 제공하는 컨텍스트를 정의하고 절차를 진행해보도록 한다.
+
+먼저 사용자에 대한 정보를 저장할 모델이 필요하므로 레코드를 하나 작성한다.
+
+```java
+package com.polarbookshop.edgeservice.user;
+
+import java.util.List;
+
+public record User(
+        String username,
+        String firstName,
+        String lastName,
+        List<String> roles
+) { }
+```
+
+스프링 시큐리티는 인증된 사용자(Principal)에 대한 정보를 Authentication을 구현한 객체의 한 필드에 넣게 되어있다
+
+
+
+
+
+
+
+
