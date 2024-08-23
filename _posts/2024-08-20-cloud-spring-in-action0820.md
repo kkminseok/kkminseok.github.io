@@ -368,9 +368,7 @@ public record User(
 
 스프링 시큐리티는 인증된 사용자(Principal)에 대한 정보를 Authentication을 구현한 객체의 한 필드에 넣게 되어있다
 
-
-
-
+그래서 로그인한 사용자의 인증 객체에 엑세스하는 한 가지 방법은 ReactiveSecurityContextHolder 또는 SecurityContextHolder로부터 검색해서 가져온 SecurityContext에서 해당 객체를 추출하는 것이다.
 
 
 
