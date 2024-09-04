@@ -370,6 +370,180 @@ public record User(
 
 그래서 로그인한 사용자의 인증 객체에 엑세스하는 한 가지 방법은 ReactiveSecurityContextHolder 또는 SecurityContextHolder로부터 검색해서 가져온 SecurityContext에서 해당 객체를 추출하는 것이다.
 
+객체를 추출하기 위해서 시큐리티 콘텍스트 구조를 알아야하는데 위의 경우 대략 이렇게 감싸져있다.
+
+```text
+SecurityContext -> Authentication -> OidcUser(Principal) -> OidcIdToken
+```
+
+즉, OidcUser 인터페이스의 유형에 ID토큰값을 저장하며, 이 값은 Authenication에 저장되고 SecurityContext가 이를 관리하는 구조이다.
+
+그렇기에 새로운 유저를 관리할 때도 위 구조에 따라 유저를 추가할 수 있다.
+
+유저를 넣을 엔드포인트와 메서드를 구현해보자.
+
+```java
+package com.polarbookshop.edgeservice.user;
+
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+@RestController
+public class UserController {
+    
+    @GetMapping("user")
+    public Mono<User> getUser() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .map(authentication ->
+                        (OidcUser) authentication.getPrincipal())
+                .map(oidcUser -> 
+                        new User(
+                                oidcUser.getPreferredUsername(),
+                                oidcUser.getGivenName(),
+                                oidcUser.getFamilyName(),
+                                List.of("employee", "customer")
+                        )
+                );
+    }
+}
+```
+
+이런 일련의 과정을 스프링 웹MVC와 웹플럭스에서 제공하는 애플리케이션을 통해 줄일 수 있다.
+
+```java
+@GetMapping("user")
+public Mono<User> getUser(@AuthenticationPrincipal OidcUser oidcUser) {
+        var user = new User(
+                oidcUser.getPreferredUsername(), 
+                oidcUser.getGivenName(),
+                oidcUser.getFamilyName(),
+                List.of("employee", "customer")
+        );
+        return Mono.just(user);
+}
+```
+
+이후 서버를 띄우고 localhost:9000/user에 접근하여 로그인을 수행하면
+
+```json
+{
+  "username": "bjorn",
+  "firstName": "Bjorn",
+  "lastName": "Vinterberg",
+  "roles": [
+    "employee",
+    "customer"
+  ]
+}
+```
+
+라고 정상 출력된다.
+
+유저가 가지고 있는 권한에 따라 **사용률 제한**을 할 수있는데 간단한 예제를 통해서 제한해보겠다.
+
+`RateLimiterConfig`클래스에서 인증된 Principle 사용자 이름을 추출하는데 만약 인증되지 않은 사용자라면 사용률 제한을 걸도록한다.
+
+```java
+@Configuration
+public class RateLimiterConfig {
+
+    @Bean
+    public KeyResolver keyResolver() {
+        return exchange -> exchange.getPrincipal()
+                .map(Principal::getName)
+                .defaultIfEmpty("anonymous");
+    }
+}
+```
+
+이 코드가 사용률 제한이 되는이유는 KeyResolver가 요청을 구분할 때 키 값을 사용하는데, 이를 인증된 사용자라면 사용자의 이름으로 키값을 사용하지만 인증되지 않은 사용자라면 **anonoymous**라는 키를 공유하기 때문에 제한이 된다. 추가로 인증되지 않은 사용자에게 IP별로 제한을 둘 수 있고 고유한 랜덤값을 생성하여 제한을 받게 할 수도 있다.
+
+
+## 스프링 시큐리티 및 키클록 로그아웃 적용
+
+스프링 시큐리티에서 사용자가 로그아웃을 하게 되면 모든 세션 데이터를 삭제하게 된다. OpenID 커넥트/Oauth2를 사용하면 사용자를 위해 스프링 시큐리티가 저장한 토큰 역시 삭제된다. 그러나 키클록에는 해당 사용자에 대한 세션을 가지고 있기에 완전히 로그아웃을 하려면 스프링 시큐리티, 키클록이 저장하고 있는 값들을 삭제해줘야한다.
+
+스프링 시큐리티가 지원하고 있는 것들 중에 스프링시큐리티단에서 로그아웃을하면 키클록에도 전파하여 로그아웃 시키는 기술이 있다.
+
+플로우를 정의하면 다음과 같다.
+
+```mermaid
+sequenceDiagram
+    User->>+브라우저: logout
+    브라우저->>+서비스: POST /logout
+    서비스->>+서비스: 세션 데이터 삭제
+    서비스->>+브라우저: 로그아웃 성공, 키클록 302 리다이렉트
+    브라우저->>+키클록: 로그아웃 요청
+    키클록->>+키클록: 토큰 무효화, 세션 데이터 삭제
+    키클록->>+브라우저: 로그아웃 성공, 서비스302 리다이렉트
+    브라우저->>+서비스: 홈페이지 요청 /GET
+    서비스->>+브라우저: 홈페이지 200OK
+```
+
+키클록에 전파하기 위해서 스프링 시큐리티에서 제공하는 `OidcClientInitatedServerLogoutSuccessHandler`같은 객체들을 이용해야한다.
+`SecurityConfig` 클래스에서 로그아웃 관련 메서드들과 객체들을 정의하여 사용해보자.
+
+```java
+    @Bean
+    SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http, ReactiveClientRegistrationRepository clientRegistrationRepository) {
+        return http
+                .authorizeExchange(exchange -> exchange.anyExchange().authenticated()) // 모든 요청에 대해 인증이 이뤄져야함.
+                .oauth2Login(Customizer.withDefaults()) //Oauth2/오픈ID커넥트 방식을 이용한 로그인 인증 진행
+                .logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository)))
+                .build();
+    }
+
+    private ServerLogoutSuccessHandler oidcLogoutSuccessHandler(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+        var oidcLogoutSuccessHandler = new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository);
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}"); // OIDC 공급자(키클록)에서 로그아웃 후 사용자를 스프링에서 동적으로 지정하는 애플리케이션 베이스 URL로 리다이렉션한다. 로컬=localhost:9000
+        return oidcLogoutSuccessHandler;
+    }
+```
+
+책에서는 아직 화면UI가 없기에 테스트는 진행하지 않아도 된다고 한다. 추후 화면 UI가 추가되면 테스트를 진행하면 된다.
+
+책에서는 앵귤러를 통해서 백엔드와 통합을 진행하는데 이부분에 대해서 보안적으로 고려해야할 부분(cors, csrf등)이 있기에 이를 해결하고 앵귤러와 백엔드를 통합하도록 한다.
+
+## 앵귤러 실행 및 보안적용
+
+책에서는 ui에 대한 고민읋 하지않게 이미 도커이미지로 패키징해놓았기에 이를 실행하기만하면된다.
+
+```yml
+#docker-compose.yml
+services:
+  polar-ui:
+    image: "ghcr.io/polarbookshop/polar-ui:v1"
+    container_name: "polar-ui"
+    ports:
+      - 9004:9004 
+    environment:
+      - PORT=9004 #Nginx
+```
+
+정적리소스는 웹서버에서 관리하는게 나으므로 게이트웨이에서 라우트를 추가하여 웹서버에서 정적리소스를 서빙할 수 있도록 properties도 수정해준다.
+
+```yml
+spring:
+  gateway:
+    routes:
+      - id: spa-route
+        uri: ${SPA_URL:http://localhost:9004}
+        predicates:
+        - Path=/,/*.css,/*.js,/favicon.ico
+```
+
+docker compose로 polar-ui를 실행하고 애플리케이션을 실행하고 keycloak에 로그인하여 다음 페이지가 뜨면 성공이다.
+
+![](/assets/img/cloudNativeSpringInAction/11_polar_ui.png)
+
+현재 스프링 시큐리티가 제공하고 있는 cors, csrf문제를 해결하지 않았기에 딱히 할 수 있는게 없다. 이를 해결해야한다.
 
 
 
