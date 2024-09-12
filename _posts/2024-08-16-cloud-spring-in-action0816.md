@@ -1,5 +1,5 @@
 ---
-title: 클라우드 네이티브 인 액션(10) - 래빗MQ, 스프링 클라우드 스트림, 스프링 클라우드 함수
+title: 클라우드 네이티브 인 액션(9) - 래빗MQ, 스프링 클라우드 스트림, 스프링 클라우드 함수
 author: minseok
 date: 2024-08-16 00:02:00 +0800
 categories: [Book, Cloud-Native-Spring-In-Action]

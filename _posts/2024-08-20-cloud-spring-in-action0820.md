@@ -1,5 +1,5 @@
 ---
-title: 클라우드 네이티브 인 액션(11) - 보안, SPA, 키클록, OpenID, Connect
+title: 클라우드 네이티브 인 액션(10) - 보안, SPA, 키클록, OpenID, Connect
 author: minseok
 date: 2024-08-20 00:02:00 +0800
 categories: [Book, Cloud-Native-Spring-In-Action]
