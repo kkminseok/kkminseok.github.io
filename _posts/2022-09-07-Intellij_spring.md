@@ -8,8 +8,7 @@ categories: [Java,Spring_CS]
 tags: [Spring]
 math: true
 mermaid: true
-image: 
-    path: /assets/img/sample/Spring/CS/spring_logo.png
+
 comments: true
 ---
 

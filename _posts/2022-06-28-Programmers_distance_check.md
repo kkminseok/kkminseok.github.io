@@ -8,8 +8,6 @@ categories: [Algorithm,Programmers]
 tags: [Programmers]
 math: true
 mermaid: true
-image: 
-  path: 
 comments : true
 ---
 

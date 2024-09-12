@@ -8,8 +8,7 @@ categories: [Python,FastAPI]
 tags: [FastAPI]
 math: true
 mermaid: true
-image: 
-  path: /assets/img/zinsap/containerName.png
+
 comments : true
 ---
 

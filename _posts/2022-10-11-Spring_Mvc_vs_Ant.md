@@ -7,9 +7,7 @@ date: 2022-10-11 00:02:00 +0800
 categories: [Java,Spring]
 tags: [Spring]
 math: true
-mermaid: true
-image: 
-    path: 
+mermaid: true 
 comments: true
 ---
 
