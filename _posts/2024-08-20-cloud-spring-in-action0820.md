@@ -545,5 +545,195 @@ docker compose로 polar-ui를 실행하고 애플리케이션을 실행하고 ke
 
 현재 스프링 시큐리티가 제공하고 있는 cors, csrf문제를 해결하지 않았기에 딱히 할 수 있는게 없다. 이를 해결해야한다.
 
+cors, csrf에 대한 이야기는 자세히 하지 않겠지만 타임리프와 같은 템플릿엔진일 떄는 고려하지 않아도 되는 상황이다.
+
+먼저 인증되지 않은 요청에 대해 401 HttpStatus를 반환할 필요가 있다.
+
+```java
+// SecurityConfig.java
+@Bean
+SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http, ReactiveClientRegistrationRepository clientRegistrationRepository) {
+    return http
+            .authorizeExchange(exchange -> exchange.anyExchange().authenticated()) // 모든 요청에 대해 인증이 이뤄져야함.
+            .exceptionHandling(exceptionHandlingSpec ->
+                    exceptionHandlingSpec.authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)))
+            .oauth2Login(Customizer.withDefaults()) //Oauth2/오픈ID커넥트 방식을 이용한 로그인 인증 진행
+            .logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository)))
+            .build();
+}
+```
+
+이렇게 401을 반환하면 클라이언트쪽에서는 해당 status 값을 확인하여 해당 응답값에 대한 후처리(인증 재요청)작업을 진행할 수 있다.
+
+추가로 해줘야하는것은 정적 리소스나 인증이 필요없는 GET요청에 대해서는 인증절차를 밟지 않도록 설정을 추가해줘야하기에 이에 맞춰서 추가해주도록 한다.
+
+위의 SecurityConfig 자바 클래스의 메서드를 다시 한 번 수정해준다.
+
+```java
+return http
+                .authorizeExchange(exchange -> exchange
+                        .pathMatchers("/","/*.css","/*.js","favicon.ico").permitAll() //정적 리소스에 대한 허용
+                        .pathMatchers(HttpMethod.GET,"/books/**").permitAll() //요청에 대한 허용
+                        .anyExchange().authenticated()) // 모든 요청에 대해 인증이 이뤄져야함.
+            ...
+```
+
+### csrf적용
+
+csrf에 대해서 설명하면 너무 광범위해지기에 설명은 따로 하지 않을 것이다.
+결국 해줘야하는건 세션이 시작될때 CSRF관련 토큰을 생성하고 클라이언트에 제공하면서 이후 모든 상태 변경 요청에 대하여 이 토큰을 보낼것을 요구하도록 코드를 수정해야한다.
+
+위의 `SecurityConfig.java` 파일을 수정해준다.
+
+```java
+ @Bean
+    SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http, ReactiveClientRegistrationRepository clientRegistrationRepository) {
+        return http
+                ...
+                .csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))// CSRF 토큰을 교환하기 위해 쿠키 기반 방식을 사용
+                .build();
+    }
+    // CsrfToken 리액티브 스트림을 구독하고 이 토큰 값을 올바르게 추출하기 위한 목적만을 갖는 필터
+    @Bean
+    WebFilter csrfWebfilter(){
+        // Required because of https://github.com/spring-projects/spring-security/issues/5766
+        return (exchange, chain) -> {
+            exchange.getResponse().beforeCommit(() -> Mono.defer(() -> {
+                Mono<CsrfToken> csrfToken = exchange.getAttribute(CsrfToken.class.getName());
+                return csrfToken != null ? csrfToken.then() : Mono.empty();
+            }));
+            return chain.filter(exchange);
+        };
+    }
+```
+
+먼저 `CsrfTokenRepository`는 CSRF토큰을 생성, 검색, 저장하는 매커니즘을 제공하는 인터페이스다. Spring Security에서 CSRF보호를 구현할 때 이 인터페이스의 다양한 구현체를 사용할 수 있는데, 그 중 하나가 `CookieServerCsrfTokenRepository`이다.
+
+해당 구현체를 통해서 `XSRF-TOKEN`와 같은 이름을 가진 토큰을 관리할 수 있다.
+요청때마다 쿠키에서 해당 값을 찾아서 csrf를 검증한다.
 
 
+
+> 책에서는 해당 클래스에 `@Configuration`을 달아주지 않았는데 이로인해서 정상동작하지 않으므로 해당 애노테이션을 달아주도록 한다. 또한 `springCloudVersion` 버전이 2023버전이라면 로그아웃시도시 csrf오류가 발생한다 버전을 2021.0.9로 맞춰주는걸 추천한다
+{: .prompt-warn}
+
+이렇게 구현하고 페이지에서 여러 요청들을 수행했을때 csrf에러가 발생하지 않음을 알 수 있다.
+
+## 테스트 코드 작성
+
+스프링 시큐리티에서 제공하는 방법으로 여러 통합 테스트를 진행할 수 있다.
+
+OIDC인증 및 CSRF 보호 테스트를 진행해볼 예정이다.
+
+### OIDC 인증 테스트
+
+```java
+
+@WebFluxTest(UserController.class)
+@Import(SecurityConfig.class) //애플리케이션 보안 설정을 불러옴
+public class UserControllerTests {
+    @Autowired
+    WebTestClient webClient;
+
+    //키클록과 상호보완을 하지 않기에 모의 빈을 등록
+    @MockBean
+    ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+    @Test
+    void whenNotAuthenticatedThen401() {
+        webClient
+                .get()
+                .uri("/user")
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+}
+```
+
+요청이 인증되지 않은 경우 401 Status를 반환하게끔 하였으므로 `/user`엔드포인트를 호출할 때 그 응답을 받는지 확인한다.
+
+다음은 모의 토큰을 생성하여 정상 응답을 받는것을 확인하는 테스트이다.
+
+```java
+@Test
+void whenAuthenticatedThenReturnUser() {
+    //확인할 인증 사용자
+    var expectedUser = new User("jon.snow", "Jon", "Snow", List.of("employee", "customer"));
+
+    webClient
+            .mutateWith(configureMockOidcLogin(expectedUser)) // OIDC에 기반해 인증 콘택스트를 정의하고 예상되는 사용자를 사용
+            .get()
+            .uri("/user")
+            .exchange()
+            .expectStatus().is2xxSuccessful()
+            .expectBody(User.class) //현재 인증된 사용자와 동일한 정보를 갖는 User객체를 예상
+            .value(user -> assertThat(user).isEqualTo(expectedUser));
+}
+
+private SecurityMockServerConfigurers.OidcLoginMutator configureMockOidcLogin(User expectedUser) {
+    return SecurityMockServerConfigurers.mockOidcLogin().idToken(builder -> {
+      //모의 ID 토큰을 생성
+        builder.claim(StandardClaimNames.PREFERRED_USERNAME, expectedUser.username());
+        builder.claim(StandardClaimNames.GIVEN_NAME, expectedUser.firstName());
+        builder.claim(StandardClaimNames.FAMILY_NAME, expectedUser.lastName());
+    });
+}
+```
+
+이후 테스트를 진행하여 모두 성공이 된다.
+
+### CSRF 테스트
+
+CSRF를 테스트하기 위해 `/logout`엔드포인트에 대해 302응답이 오는지 확인한다.
+
+```java
+@WebFluxTest
+@Import(SecurityConfig.class)
+public class SecurityConfigTests {
+
+    @Autowired
+    WebTestClient webClient;
+
+    @MockBean
+    ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
+
+
+    @Test
+    void whenLogoutAuthenticatedAndWithCsrfTokenThen302() {
+        Mockito.when(reactiveClientRegistrationRepository.findByRegistrationId("test"))
+                .thenReturn(Mono.just(testClientRegistration()));
+
+        webClient
+                .mutateWith(SecurityMockServerConfigurers.mockOidcLogin())
+                .mutateWith(SecurityMockServerConfigurers.csrf())
+                .post()
+                .uri("/logout")
+                .exchange()
+                .expectStatus().isFound();
+    }
+
+    private ClientRegistration testClientRegistration() {
+        return ClientRegistration.withRegistrationId("test")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .clientId("test")
+                .authorizationUri("https://sso.polarbookshop.com/auth")
+                .tokenUri("https://sso.polarbookshop.com/token")
+                .redirectUri("https://polarbookshop.com")
+                .build();
+    }
+}
+```
+
+위의 코드는 메서드 모킹을 통해 "test" 클라이언트로 등록된 사용자 정보를 반환해, 인증된 유저가 로그아웃을 보내는 상황을 테스트하는 것이다.
+
+- .mutateWith(SecurityMockServerConfigurers.mockOidcLogin()): OIDC 로그인 환경 모킹
+- .mutateWith(SecurityMockServerConfigurers.csrf()): CSRF 토큰 검사 활성화
+
+
+끝으로 보안쪽이다보니 헷갈리는 부분도 많았고 keycloak에 대한 동작방식을 정확하게 알고 있지 않기에 추가로 공부해야함을 느꼈다.
+
+그리고 k8s까지 적용한다하면 실제로는 다르게 동작할 가능성이 있다고 책에서 그러니, 이부분도 같이 체크해야할 사항으로 추가되었다.
+
+TMI로 요새 일도 바쁘고 클라우드 버전과 부트 버전의 호환성 문제로 막힌 부분이 있긴했지만..
+
+글을 마무리하게 되었다.
